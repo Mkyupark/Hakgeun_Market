@@ -34,6 +34,8 @@ set(FLUTTER_ICU_DATA_FILE "${EPHEMERAL_DIR}/icudtl.dat" PARENT_SCOPE)
 set(PROJECT_BUILD_DIR "${PROJECT_DIR}/build/" PARENT_SCOPE)
 set(AOT_LIBRARY "${PROJECT_DIR}/build/lib/libapp.so" PARENT_SCOPE)
 
+target_include_directories(mylib public)
+
 list(APPEND FLUTTER_LIBRARY_HEADERS
   "fl_basic_message_channel.h"
   "fl_binary_codec.h"
