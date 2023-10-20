@@ -1,16 +1,25 @@
-# hakgeun_market
+# Hakgeun_Market (학근 마켓)
+<hr/>
 
-A new Flutter project.
+## 개요
 
-## Getting Started
+학생들을 위한 중고 거래 서비스
+금오공과대학교 - 오픈소스 프로젝트 
 
-This project is a starting point for a Flutter application.
+<hr/>
+## 구현 기능
 
-A few resources to get you started if this is your first Flutter project:
+ 회원관리
+ 중고거래 관리 (상품 게시글 CRUD)
+ 거래를 위한 채팅 기능
+ 
+ <hr/>
+## 🛠️ 개발 환경
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+ UI: Fultter
+ DB: FireBase
+ 
+ 
+ 
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+[학근마켓 피그마 링크](https://www.figma.com/file/3InhX9eTxLaS7mVBsrSdbn/%ED%95%99%EA%B7%BC%EB%A7%88%EC%BC%93?type=design&mode=design&t=2BaPqYNWftVN1HsJ-0)
