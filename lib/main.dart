@@ -1,13 +1,20 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:hakgeun_market/firebase_options.dart';
+import 'package:hakgeun_market/pages/AuthPage/main_screen.dart';
 import 'package:hakgeun_market/pages/app.dart';
 import 'package:hakgeun_market/provider/navigation_provider.dart';
 import 'package:provider/provider.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(MultiProvider(providers: [
     ChangeNotifierProvider<NavigationProvider>(
         create: (context) => NavigationProvider()),
-  ], child: const MyApp()));
+  ], child: const MainScreen()));
   //runApp(const MyApp());
 }
 

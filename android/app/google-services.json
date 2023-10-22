@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "227465765720",
+    "project_id": "market-5f9bf",
+    "storage_bucket": "market-5f9bf.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:227465765720:android:98ffdd30a7dc376fc17b2d",
+        "android_client_info": {
+          "package_name": "com.example.hakgeun_market"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAfPLoddhurL2GG55rRuzujgDmetgIvgV4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
