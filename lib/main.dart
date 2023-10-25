@@ -4,6 +4,7 @@ import 'package:hakgeun_market/firebase_options.dart';
 import 'package:hakgeun_market/pages/AuthPage/main_screen.dart';
 import 'package:hakgeun_market/pages/app.dart';
 import 'package:hakgeun_market/provider/navigation_provider.dart';
+import 'package:hakgeun_market/provider/user_provider.dart';
 import 'package:provider/provider.dart';
 
 Future<void> main() async {
@@ -14,6 +15,7 @@ Future<void> main() async {
   runApp(MultiProvider(providers: [
     ChangeNotifierProvider<NavigationProvider>(
         create: (context) => NavigationProvider()),
+    ChangeNotifierProvider<UserProvider>(create: (context) => UserProvider())
   ], child: const MainScreen()));
   //runApp(const MyApp());
 }

@@ -1,11 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:hakgeun_market/pages/AuthPage/regist_screen.dart';
+import 'package:hakgeun_market/provider/user_provider.dart';
+import 'package:provider/provider.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final userProvider = Provider.of<UserProvider>(context);
+
+    void login() {
+      // 사용자 정보를 얻어온 후 UserProvider를 통해 로그인 정보 업데이트
+      String userId = "사용자 ID";
+      String password = "password";
+      userProvider.login(userId, password);
+    }
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
