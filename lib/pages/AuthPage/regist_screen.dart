@@ -1,16 +1,79 @@
-// ignore_for_file: library_private_types_in_public_api
+// ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class RegistScreen extends StatefulWidget {
-  const RegistScreen({Key? key}) : super(key: key);
+  const RegistScreen({super.key});
 
   @override
   _RegistScreenState createState() => _RegistScreenState();
 }
 
 class _RegistScreenState extends State<RegistScreen> {
-  String selectedSchool = "금오공과대학교"; // 초기 선택 학교
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  String selectedSchool = "금오공과대학교";
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _smsController = TextEditingController();
+
+  String? verificationId;
+
+  Future<void> _verifyPhoneNumber() async {
+    verificationCompleted(AuthCredential phoneAuthCredential) async {
+      await _auth.signInWithCredential(phoneAuthCredential);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Phone number automatically verified!')),
+      );
+    }
+
+    verificationFailed(FirebaseAuthException e) {
+      print(e.code); // This will print the specific error code
+      print(e.message); // This will print the error message
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Verification failed. Please try again.')),
+      );
+    }
+
+    codeSent(String verificationId, int? resendToken) async {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Verification code sent on the phone number')),
+      );
+      this.verificationId = verificationId;
+    }
+
+    codeAutoRetrievalTimeout(String verificationId) {
+      this.verificationId = verificationId;
+    }
+
+    await _auth.verifyPhoneNumber(
+      phoneNumber: _phoneController.text,
+      verificationCompleted: verificationCompleted,
+      verificationFailed: verificationFailed,
+      codeSent: codeSent,
+      codeAutoRetrievalTimeout: codeAutoRetrievalTimeout,
+    );
+  }
+
+  Future<void> _signInWithPhoneNumber() async {
+    try {
+      final AuthCredential credential = PhoneAuthProvider.credential(
+        verificationId: verificationId!,
+        smsCode: _smsController.text,
+      );
+
+      final User? user = (await _auth.signInWithCredential(credential)).user;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text('Successfully signed up with UID: ${user?.uid}')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to sign up: $e')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,88 +87,55 @@ class _RegistScreenState extends State<RegistScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white, // AppBar의 배경색을 흰색으로 설정
+        backgroundColor: Colors.white,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black), // 아이콘 색상 설정
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
-            Navigator.of(context).pop(); // 뒤로 가기 아이콘 동작
+            Navigator.of(context).pop();
           },
         ),
-        elevation: 0, // AppBar의 그림자를 없애는 부분
-        title: const Text("회원가입",
-            style: TextStyle(color: Colors.black)), // 타이틀 색상 설정
+        elevation: 0,
+        title: const Text("회원가입", style: TextStyle(color: Colors.black)),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: ListView(
           children: [
             const SizedBox(height: 10.0),
-            const Text(
-              "안녕하세요!",
-              style: TextStyle(
-                fontSize: 24.0,
-              ),
-            ),
+            const Text("안녕하세요!", style: TextStyle(fontSize: 24.0)),
             const SizedBox(height: 7.0),
-            const Text(
-              "휴대폰 번호로 회원가입 해주세요.",
-              style: TextStyle(
-                fontSize: 24.0,
-              ),
-            ),
+            const Text("휴대폰 번호로 회원가입 해주세요.", style: TextStyle(fontSize: 24.0)),
             const SizedBox(height: 20.0),
-            // 휴대폰번호 입력 필드
-            const TextField(
-              decoration: InputDecoration(
+            TextField(
+              controller: _phoneController,
+              decoration: const InputDecoration(
                 labelText: "휴대폰번호",
                 border: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: Colors.grey, // 회색 테두리
-                  ),
+                  borderSide: BorderSide(color: Colors.grey),
                 ),
               ),
             ),
             const SizedBox(height: 10.0),
-            // 비밀번호 입력 필드
-            const TextField(
-              decoration: InputDecoration(
-                labelText: "비밀번호",
+            TextField(
+              controller: _smsController,
+              decoration: const InputDecoration(
+                labelText: "인증 코드",
                 border: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: Colors.grey, // 회색 테두리
-                  ),
-                ),
-              ),
-              obscureText: true,
-            ),
-            const SizedBox(height: 10.0),
-            // 비밀번호 확인 입력 필드
-            const TextField(
-              decoration: InputDecoration(
-                labelText: "비밀번호 확인",
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: Colors.grey, // 회색 테두리
-                  ),
-                ),
-              ),
-              obscureText: true,
-            ),
-            const SizedBox(height: 10.0),
-            // 닉네임 입력 필드
-            const TextField(
-              decoration: InputDecoration(
-                labelText: "닉네임 입력",
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: Colors.grey, // 회색 테두리
-                  ),
+                  borderSide: BorderSide(color: Colors.grey),
                 ),
               ),
             ),
             const SizedBox(height: 10.0),
-            // 학교 선택 드롭다운 메뉴
+            ElevatedButton(
+              onPressed: _verifyPhoneNumber,
+              child: const Text("SMS 보내기"),
+            ),
+            const SizedBox(height: 10.0),
+            ElevatedButton(
+              onPressed: _signInWithPhoneNumber,
+              child: const Text("인증확인"),
+            ),
+            const SizedBox(height: 10.0),
             DropdownButtonFormField<String>(
               value: selectedSchool,
               items: schools.map((school) {
@@ -122,30 +152,21 @@ class _RegistScreenState extends State<RegistScreen> {
               decoration: const InputDecoration(
                 labelText: "학교 선택",
                 border: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: Colors.grey, // 회색 테두리
-                  ),
+                  borderSide: BorderSide(color: Colors.grey),
                 ),
               ),
             ),
             const SizedBox(height: 20.0),
             ElevatedButton(
               onPressed: () {
-                // 회원가입 버튼을 클릭했을 때의 동작을 여기에 추가
+                // Handle further registration steps here
               },
-              style: ElevatedButton.styleFrom(
-                primary: const Color(0xFF2DB400),
-              ),
+              style: ElevatedButton.styleFrom(primary: const Color(0xFF2DB400)),
               child: const SizedBox(
                 width: double.infinity,
                 height: 50.0,
                 child: Center(
-                  child: Text(
-                    "회원가입",
-                    style: TextStyle(
-                      fontSize: 16.0,
-                    ),
-                  ),
+                  child: Text("회원가입 완료", style: TextStyle(fontSize: 16.0)),
                 ),
               ),
             ),
