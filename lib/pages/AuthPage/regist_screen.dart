@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class RegistScreen extends StatefulWidget {
   const RegistScreen({super.key});
@@ -13,11 +14,24 @@ class RegistScreen extends StatefulWidget {
 class _RegistScreenState extends State<RegistScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
   String selectedSchool = "금오공과대학교";
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _smsController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _nicknameController = TextEditingController();
 
   String? verificationId;
+
+  @override
+  void dispose() {
+    _phoneController.dispose();
+    _smsController.dispose();
+    _passwordController.dispose();
+    _nicknameController.dispose();
+    super.dispose();
+  }
 
   Future<void> _verifyPhoneNumber() async {
     verificationCompleted(AuthCredential phoneAuthCredential) async {
@@ -28,8 +42,10 @@ class _RegistScreenState extends State<RegistScreen> {
     }
 
     verificationFailed(FirebaseAuthException e) {
-      print(e.code); // This will print the specific error code
-      print(e.message); // This will print the error message
+      if (e.code == 'invalid-phone-number') {
+        print('The provided phone number is not valid.');
+      }
+      print(e.code);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Verification failed. Please try again.')),
       );
@@ -64,6 +80,14 @@ class _RegistScreenState extends State<RegistScreen> {
       );
 
       final User? user = (await _auth.signInWithCredential(credential)).user;
+      if (user != null) {
+        await _registerUser(
+          user.uid,
+          _phoneController.text,
+          _passwordController.text,
+          _nicknameController.text,
+        );
+      }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             content: Text('Successfully signed up with UID: ${user?.uid}')),
@@ -71,6 +95,25 @@ class _RegistScreenState extends State<RegistScreen> {
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to sign up: $e')),
+      );
+    }
+  }
+
+  Future<void> _registerUser(
+      String uid, String phoneNumber, String password, String nickname) async {
+    try {
+      await _firestore.collection('users').doc(uid).set({
+        'phoneNumber': phoneNumber,
+        'password': password,
+        'nickname': nickname,
+        'school': selectedSchool,
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('User information saved successfully')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to save user information: $e')),
       );
     }
   }
@@ -128,12 +171,31 @@ class _RegistScreenState extends State<RegistScreen> {
             const SizedBox(height: 10.0),
             ElevatedButton(
               onPressed: _verifyPhoneNumber,
-              child: const Text("SMS 보내기"),
+              style: ElevatedButton.styleFrom(primary: const Color(0xFF2DB400)),
+              child: const SizedBox(
+                width: double.infinity,
+                height: 40.0,
+                child: Center(
+                  child: Text("SMS 보내기", style: TextStyle(fontSize: 16.0)),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20.0),
+            TextField(
+              controller: _passwordController,
+              obscureText: true,
+              decoration: const InputDecoration(
+                labelText: "비밀번호",
+                border: OutlineInputBorder(),
+              ),
             ),
             const SizedBox(height: 10.0),
-            ElevatedButton(
-              onPressed: _signInWithPhoneNumber,
-              child: const Text("인증확인"),
+            TextField(
+              controller: _nicknameController,
+              decoration: const InputDecoration(
+                labelText: "닉네임",
+                border: OutlineInputBorder(),
+              ),
             ),
             const SizedBox(height: 10.0),
             DropdownButtonFormField<String>(
@@ -158,13 +220,11 @@ class _RegistScreenState extends State<RegistScreen> {
             ),
             const SizedBox(height: 20.0),
             ElevatedButton(
-              onPressed: () {
-                // Handle further registration steps here
-              },
+              onPressed: _signInWithPhoneNumber,
               style: ElevatedButton.styleFrom(primary: const Color(0xFF2DB400)),
               child: const SizedBox(
                 width: double.infinity,
-                height: 50.0,
+                height: 40.0,
                 child: Center(
                   child: Text("회원가입 완료", style: TextStyle(fontSize: 16.0)),
                 ),
