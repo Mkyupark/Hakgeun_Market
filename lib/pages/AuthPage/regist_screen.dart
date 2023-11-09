@@ -64,7 +64,7 @@ class _RegistScreenState extends State<RegistScreen> {
     }
 
     await _auth.verifyPhoneNumber(
-      phoneNumber: _phoneController.text,
+      phoneNumber: '+82${_phoneController.text.substring(1)}',
       verificationCompleted: verificationCompleted,
       verificationFailed: verificationFailed,
       codeSent: codeSent,
@@ -92,6 +92,7 @@ class _RegistScreenState extends State<RegistScreen> {
         SnackBar(
             content: Text('Successfully signed up with UID: ${user?.uid}')),
       );
+      Navigator.of(context).pop();
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to sign up: $e')),
@@ -151,6 +152,7 @@ class _RegistScreenState extends State<RegistScreen> {
             const SizedBox(height: 20.0),
             TextField(
               controller: _phoneController,
+              keyboardType: TextInputType.number,
               decoration: const InputDecoration(
                 labelText: "휴대폰번호",
                 border: OutlineInputBorder(

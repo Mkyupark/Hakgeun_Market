@@ -1,20 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:hakgeun_market/pages/AuthPage/regist_screen.dart';
+import 'package:hakgeun_market/pages/app.dart';
 import 'package:hakgeun_market/provider/user_provider.dart';
 import 'package:provider/provider.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
+
+  @override
+  _LoginScreenState createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final TextEditingController loginPhoneController = TextEditingController();
+  final TextEditingController loginPasswordController = TextEditingController();
+  @override
+  void dispose() {
+    loginPhoneController.dispose();
+    loginPasswordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context);
-
     void login() {
-      // 사용자 정보를 얻어온 후 UserProvider를 통해 로그인 정보 업데이트
-      String userId = "사용자 ID";
-      String password = "password";
-      userProvider.login(userId, password);
+      userProvider.login(
+          loginPhoneController.text, loginPasswordController.text);
+
+      if (userProvider.isLoggedIn) {
+        Navigator.push(context, MaterialPageRoute(builder: (context) => App()));
+      }
     }
 
     return Scaffold(
@@ -49,8 +65,10 @@ class LoginScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20.0),
-            const TextField(
-              decoration: InputDecoration(
+            TextField(
+              controller: loginPhoneController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
                 labelText: "휴대폰번호",
                 border: OutlineInputBorder(
                   borderSide: BorderSide(
@@ -60,8 +78,9 @@ class LoginScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 10.0),
-            const TextField(
-              decoration: InputDecoration(
+            TextField(
+              controller: loginPasswordController,
+              decoration: const InputDecoration(
                 labelText: "비밀번호",
                 border: OutlineInputBorder(
                   borderSide: BorderSide(
@@ -101,7 +120,7 @@ class LoginScreen extends StatelessWidget {
             const SizedBox(height: 10.0),
             ElevatedButton(
               onPressed: () {
-                // 로그인 버튼을 클릭했을 때의 동작을 여기에 추가
+                login();
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF2DB400),
