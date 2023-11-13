@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:hakgeun_market/pages/chatroom/chatroom.dart';
 
 
 class Detail extends StatefulWidget {
@@ -19,7 +20,7 @@ class _DetailState extends State<Detail> {
 
   PreferredSizeWidget _appbarWidget() {
     return PreferredSize(
-      preferredSize: Size.fromHeight(56),
+      preferredSize: const Size.fromHeight(56),
       child: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -59,7 +60,7 @@ class _DetailState extends State<Detail> {
               children: [
                 Column(
                   children: [
-                    Text("36.5°C", 
+                    const Text("36.5°C", 
                     style: TextStyle(
                     color: Colors.green,
                     fontSize: 18, 
@@ -86,7 +87,7 @@ class _DetailState extends State<Detail> {
               ],
             ),
           ),
-          Text(
+          const Text(
             "매너온도",
             style: TextStyle(
               decoration: TextDecoration.underline,
@@ -130,8 +131,8 @@ class _DetailState extends State<Detail> {
               radius: 25,
               backgroundImage: Image.asset("assets/images/user.png").image,
             ),
-            SizedBox(width: 10),
-            Column(
+            const SizedBox(width: 10),
+            const Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
@@ -144,7 +145,7 @@ class _DetailState extends State<Detail> {
                 Text("디지털관 1층"),
               ],
             ),
-          SizedBox(width: 150),
+          const SizedBox(width: 150),
           Expanded(
             child: _tempset()
               
@@ -177,36 +178,36 @@ class _DetailState extends State<Detail> {
           fontSize: 20,
           ),
         ),
-        Text(
+        const Text(
           "주방용품 · 20시간 전",
           style: TextStyle(
             color: Colors.grey,
             fontSize: 12,
           ),
         ),
-        SizedBox(height: 15),
-        Text(
+        const SizedBox(height: 15),
+        const Text(
           "선물상품이고 깨진부분 없습니다!\n 국그릇, 밥그릇 다 있습니다!",
           style: TextStyle(
             fontSize: 15,
             height: 1.5
           ),
         ),
-        SizedBox(height: 15),
-        Text(
+        const SizedBox(height: 15),
+        const Text(
           "채팅2 · 관심 35 · 조회 350",
           style: TextStyle(
             fontSize: 12,
             color: Colors.grey,
           ),
         ),
-        SizedBox(height: 15),
+        const SizedBox(height: 15),
       ],)
     );
   }
 
   Widget _otherCellContents(){
-     return Padding(
+     return const Padding(
       padding: EdgeInsets.all(15),
       child: Column(
         children: [
@@ -247,7 +248,7 @@ class _DetailState extends State<Detail> {
               "assets/svg/heart_off.svg",
               width: 20,
               height: 20,
-              color: const Color(0xfff08f4f),
+              color: Colors.green  ,
             ),
           Container(
             margin: const EdgeInsets.only(left: 15, right: 10),
@@ -281,7 +282,7 @@ class _DetailState extends State<Detail> {
                       const EdgeInsets.symmetric(horizontal: 20, vertical: 7),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(5),
-                    color: Color(0xfff08f4f),
+                    color: Colors.green,
                   ),
                   child: GestureDetector(
                     child: const Text(
@@ -295,7 +296,12 @@ class _DetailState extends State<Detail> {
                     // 해당 Text 클릭시 채팅 페이지로 이동
                    Navigator.of(context).push(
                     MaterialPageRoute(
-                    builder: (context) => Container()
+                    builder: (context) => ChatRoom(
+                    rname: '채팅 상대 0',
+                    rid: 'room 0',
+                    uid: 'user1', // 임의의 사용자 ID
+                    name: 'John', // 임의의 사용자 이름
+                  ),
                     ), );
                   },
                   ),      
@@ -325,7 +331,7 @@ class _DetailState extends State<Detail> {
       SliverPadding(
         padding: const EdgeInsets.symmetric(horizontal: 15),
         sliver: SliverGrid(
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2, mainAxisSpacing: 10, crossAxisSpacing: 10),
           delegate: SliverChildListDelegate(List.generate(20, (index) {
             return Container(
@@ -340,11 +346,11 @@ class _DetailState extends State<Detail> {
                       height: 120,
                     ),
                   ),
-                  Text(
+                  const Text(
                     "상품 제목",
                     style: TextStyle(fontSize: 14),
                   ),
-                  Text(
+                  const Text(
                     "금액",
                     style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                   ),
