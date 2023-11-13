@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hakgeun_market/pages/AuthPage/regist_screen.dart';
 import 'package:hakgeun_market/pages/app.dart';
+import 'package:hakgeun_market/pages/chatroom/chatlist.dart';
+import 'package:hakgeun_market/pages/home.dart';
 import 'package:hakgeun_market/provider/user_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -120,7 +122,14 @@ class _LoginScreenState extends State<LoginScreen> {
             const SizedBox(height: 10.0),
             ElevatedButton(
               onPressed: () {
-                login();
+                // 클릭 이벤트 처리
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => App(),
+                  ),
+                );
+                // 로그인 버튼을 클릭했을 때의 동작을 여기에 추가
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF2DB400),
