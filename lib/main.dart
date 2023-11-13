@@ -32,8 +32,8 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           textSelectionTheme: const TextSelectionThemeData(
-              cursorColor: Color(0xfff08f4f),
-              selectionColor: Color(0xfff08f4f),
+              cursorColor: Colors.green,
+              selectionColor: Colors.green,
               selectionHandleColor: Colors.black),
           colorScheme: const ColorScheme(
             primary: Colors.white,
