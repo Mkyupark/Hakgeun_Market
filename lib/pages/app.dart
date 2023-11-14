@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:hakgeun_market/componenets/appbar.dart';
 import 'package:hakgeun_market/pages/chatroom/chatlist.dart';
+import 'package:hakgeun_market/pages/detail.dart';
 import 'package:hakgeun_market/pages/home.dart';
 import 'package:hakgeun_market/provider/navigation_provider.dart';
 import 'package:provider/provider.dart';
@@ -24,7 +25,7 @@ class _AppState extends State<App> {
         return Home();
         break;
       case 1:
-        return Container();
+        return Detail(title: "hello");
         break;
       case 2:
         return ChatList();

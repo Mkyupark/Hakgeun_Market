@@ -1,3 +1,4 @@
 {
-    "cmake.sourceDirectory": "C:/opensource/project/linux"
+  "cmake.sourceDirectory": "C:/opensource/project/linux",
+  "java.configuration.updateBuildConfiguration": "interactive"
 }

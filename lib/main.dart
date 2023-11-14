@@ -49,7 +49,6 @@ class MyApp extends StatelessWidget {
             brightness: Brightness.light,
           ),
         ),
-        // home -> 페이지 시작 화면
         home: App());
   }
 }
