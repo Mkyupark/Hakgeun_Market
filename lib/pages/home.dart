@@ -58,7 +58,9 @@ class _HomeState extends State<Home> {
                   MaterialPageRoute(
                     // 해당 라인 클릭시 상세 페이지로 이동
                     // 클릭시 goods 인덱스 전달해서 detail 페이지로 이동  goods : goods[index]
-                    builder: (context) => const Detail(title: '',),
+                    builder: (context) => const Detail(
+                      title: '',
+                    ),
                   ),
                 );
               },
@@ -168,7 +170,7 @@ class _HomeState extends State<Home> {
           Navigator.of(context).push(
             MaterialPageRoute(
               // + 버튼 선택시 AddGoods 페이지로 이동
-              builder: (context) => AddGoods(),
+              builder: (context) => const AddGoodsPage(),
             ),
           );
         },

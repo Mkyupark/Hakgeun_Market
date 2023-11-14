@@ -36,7 +36,7 @@ class MyHomePage extends StatelessWidget {
             ),
             const SizedBox(height: 20.0),
             const Text(
-              "학교내 중고거래부터 학식메이트까지\n지금 내 학교를 검색하고 시작해보세요.",
+              "학교내 중고거래 어플리케이션\n지금 내 학교를 검색하고 시작해보세요.",
               style: TextStyle(
                 color: Color(0xFF8C8C8C),
                 fontSize: 18.0,

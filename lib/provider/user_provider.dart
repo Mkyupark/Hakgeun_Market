@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hakgeun_market/models/user.dart';
 
 class UserProvider extends ChangeNotifier {
   bool _isLoggedIn = false; // 로그인 상태
