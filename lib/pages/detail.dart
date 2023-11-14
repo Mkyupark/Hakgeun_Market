@@ -2,20 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:hakgeun_market/pages/chatroom/chatroom.dart';
 
-
 class Detail extends StatefulWidget {
   final String title;
   const Detail({Key? key, required this.title}) : super(key: key);
-  
+
   @override
   State<Detail> createState() => _DetailState();
-  
 }
 
-
-
 class _DetailState extends State<Detail> {
-  
   get controller => null;
 
   PreferredSizeWidget _appbarWidget() {
@@ -25,10 +20,10 @@ class _DetailState extends State<Detail> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          onPressed: () {
-            Navigator.pop(context);
-          }, icon: const Icon(Icons.arrow_back)
-          ),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: const Icon(Icons.arrow_back)),
         actions: [
           IconButton(onPressed: () {}, icon: const Icon(Icons.share)),
           IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert)),
@@ -39,16 +34,15 @@ class _DetailState extends State<Detail> {
 
   Widget _makeSliderimage() {
     return Container(
-      child:    
-      Image.asset(
+      child: Image.asset(
         'assets/images/sample1.jpg',
         width: 700,
-        fit:BoxFit.fill,
+        fit: BoxFit.fill,
       ),
-    );   
+    );
   }
 
-  Widget _temp(){
+  Widget _temp() {
     return Container(
       width: 60,
       child: Column(
@@ -60,28 +54,24 @@ class _DetailState extends State<Detail> {
               children: [
                 Column(
                   children: [
-                    const Text("36.5°C", 
-                    style: TextStyle(
-                    color: Colors.green,
-                    fontSize: 18, 
-                    fontWeight: FontWeight.bold),
+                    const Text(
+                      "36.5°C",
+                      style: TextStyle(
+                          color: Colors.green,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold),
                     ),
                     ClipRRect(
-                      borderRadius: BorderRadius.circular(10),
-                      child: Container(
-                        height: 6, 
-                      color: Colors.black.withOpacity(0.2),
-                      child: Row(
-                        children: [
-                        Container(
-                          height: 6, 
-                          width: 40, 
-                          color: Colors.green
-                          ),
-                        ],
-                        )
-                      )
-                    )
+                        borderRadius: BorderRadius.circular(10),
+                        child: Container(
+                            height: 6,
+                            color: Colors.black.withOpacity(0.2),
+                            child: Row(
+                              children: [
+                                Container(
+                                    height: 6, width: 40, color: Colors.green),
+                              ],
+                            )))
                   ],
                 )
               ],
@@ -94,33 +84,28 @@ class _DetailState extends State<Detail> {
               fontSize: 12,
               color: Colors.grey,
             ),
-            )
+          )
         ],
       ),
     );
   }
 
-  Widget _tempset(){
+  Widget _tempset() {
     return Container(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.end,
+        child: Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
+      Row(
         children: [
-          Row(
-          children: [
-            _temp(),
-            Container(
-              width: 30, 
-              height: 30, 
+          _temp(),
+          Container(
+              width: 30,
+              height: 30,
               child: Image.asset("assets/images/level-3.jpg"))
-            ],
-        ),
-        ]
-      )
-      
-    );
+        ],
+      ),
+    ]));
   }
 
-  Widget _sellerSimpleInfo(){
+  Widget _sellerSimpleInfo() {
     return Padding(
       padding: const EdgeInsets.all(15.0),
       child: SingleChildScrollView(
@@ -141,73 +126,66 @@ class _DetailState extends State<Detail> {
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
                   ),
-                ), 
+                ),
                 Text("디지털관 1층"),
               ],
             ),
-          const SizedBox(width: 150),
-          Expanded(
-            child: _tempset()
-              
-          )
+            const SizedBox(width: 150),
+            Expanded(child: _tempset())
           ],
         ),
       ),
     );
   }
 
-  Widget _line(){
+  Widget _line() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 15),
-      height: 1, 
+      height: 1,
       color: Colors.grey.withOpacity(0.3),
-      );
-  }
-
-  Widget _contentDetail(){
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 15),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-
-        Text(
-          widget.title,
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-          fontSize: 20,
-          ),
-        ),
-        const Text(
-          "주방용품 · 20시간 전",
-          style: TextStyle(
-            color: Colors.grey,
-            fontSize: 12,
-          ),
-        ),
-        const SizedBox(height: 15),
-        const Text(
-          "선물상품이고 깨진부분 없습니다!\n 국그릇, 밥그릇 다 있습니다!",
-          style: TextStyle(
-            fontSize: 15,
-            height: 1.5
-          ),
-        ),
-        const SizedBox(height: 15),
-        const Text(
-          "채팅2 · 관심 35 · 조회 350",
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.grey,
-          ),
-        ),
-        const SizedBox(height: 15),
-      ],)
     );
   }
 
-  Widget _otherCellContents(){
-     return const Padding(
+  Widget _contentDetail() {
+    return Container(
+        margin: const EdgeInsets.symmetric(horizontal: 15),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              widget.title,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+              ),
+            ),
+            const Text(
+              "주방용품 · 20시간 전",
+              style: TextStyle(
+                color: Colors.grey,
+                fontSize: 12,
+              ),
+            ),
+            const SizedBox(height: 15),
+            const Text(
+              "선물상품이고 깨진부분 없습니다!\n 국그릇, 밥그릇 다 있습니다!",
+              style: TextStyle(fontSize: 15, height: 1.5),
+            ),
+            const SizedBox(height: 15),
+            const Text(
+              "채팅2 · 관심 35 · 조회 350",
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.grey,
+              ),
+            ),
+            const SizedBox(height: 15),
+          ],
+        ));
+  }
+
+  Widget _otherCellContents() {
+    return const Padding(
       padding: EdgeInsets.all(15),
       child: Column(
         children: [
@@ -244,12 +222,12 @@ class _DetailState extends State<Detail> {
       color: Colors.white,
       child: Row(
         children: [
-            SvgPicture.asset(
-              "assets/svg/heart_off.svg",
-              width: 20,
-              height: 20,
-              color: Colors.green  ,
-            ),
+          SvgPicture.asset(
+            "assets/svg/heart_off.svg",
+            width: 20,
+            height: 20,
+            color: Colors.green,
+          ),
           Container(
             margin: const EdgeInsets.only(left: 15, right: 10),
             height: 40,
@@ -286,25 +264,26 @@ class _DetailState extends State<Detail> {
                   ),
                   child: GestureDetector(
                     child: const Text(
-                    "채팅으로 거래하기",
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        fontSize: 16),
+                      "채팅으로 거래하기",
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          fontSize: 16),
+                    ),
+                    onTap: () {
+                      // 해당 Text 클릭시 채팅 페이지로 이동
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => ChatRoom(
+                            rname: '채팅 상대 0',
+                            rid: 'room 0',
+                            uid: 'user1', // 임의의 사용자 ID
+                            name: 'John', // 임의의 사용자 이름
+                          ),
+                        ),
+                      );
+                    },
                   ),
-                  onTap: () { 
-                    // 해당 Text 클릭시 채팅 페이지로 이동
-                   Navigator.of(context).push(
-                    MaterialPageRoute(
-                    builder: (context) => ChatRoom(
-                    rname: '채팅 상대 0',
-                    rid: 'room 0',
-                    uid: 'user1', // 임의의 사용자 ID
-                    name: 'John', // 임의의 사용자 이름
-                  ),
-                    ), );
-                  },
-                  ),      
                 ),
               ],
             ),
@@ -360,16 +339,15 @@ class _DetailState extends State<Detail> {
           }).toList()),
         ),
       ),
-    ]); 
+    ]);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: _appbarWidget(),
-      body: _bodyWidget(),
-      bottomNavigationBar: _bottomBarWidget()
-      );
+        extendBodyBehindAppBar: true,
+        appBar: _appbarWidget(),
+        body: _bodyWidget(),
+        bottomNavigationBar: _bottomBarWidget());
   }
 }
