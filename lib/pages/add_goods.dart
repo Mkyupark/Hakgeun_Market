@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
+import 'package:image_picker/image_picker.dart';
+
 // 메인 페이지로 상품을 추가하는 양식을 포함합니다.
 class AddGoodsPage extends StatelessWidget {
   const AddGoodsPage({super.key});
@@ -32,6 +34,19 @@ class AddGoodsForm extends StatefulWidget {
 }
 
 class _AddGoodsFormState extends State<AddGoodsForm> {
+  XFile? _image;
+  final ImagePicker picker = ImagePicker();
+
+  Future getImage(ImageSource imageSource) async {
+    //pickedFile에 ImagePicker로 가져온 이미지가 담긴다.
+    final XFile? pickedFile = await picker.pickImage(source: imageSource);
+    if (pickedFile != null) {
+      setState(() {
+        _image = XFile(pickedFile.path); //가져온 이미지를 _image에 저장
+      });
+    }
+  }
+
   // 텍스트 컨트롤러와 다른 상태 변수들을 정의합니다.
   final TextEditingController _itemNameController = TextEditingController();
   final TextEditingController _itemDescriptionController =
@@ -58,6 +73,7 @@ class _AddGoodsFormState extends State<AddGoodsForm> {
             icon: const Icon(Icons.camera_alt, size: 50),
             onPressed: () {
               // 이미지 선택 기능 구현
+              getImage(ImageSource.gallery);
             },
           ),
 
