@@ -5,6 +5,7 @@ import 'package:hakgeun_market/componenets/appbar.dart';
 import 'package:hakgeun_market/pages/chatroom/chatlist.dart';
 import 'package:hakgeun_market/pages/detail.dart';
 import 'package:hakgeun_market/pages/home.dart';
+import 'package:hakgeun_market/pages/roading.dart';
 import 'package:hakgeun_market/provider/navigation_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -23,16 +24,12 @@ class _AppState extends State<App> {
     switch (_navigationBar.currentNavigationIndex) {
       case 0:
         return Home();
-        break;
       case 1:
-        return Detail(title: "hello");
-        break;
+        return Container();
       case 2:
         return ChatList();
-        break;
-      case 3:
+      case 3: 
         return Container();
-        break;
     }
     return Container();
   }
