@@ -20,29 +20,48 @@ class GoodsService {
     }
   }
 
-  // READ 각각의 데이터를 콕 집어서 가져올때
-  Future<Goods> getGoodsModel() async {
-    DocumentReference<Map<String, dynamic>> documentReference =
-        FirebaseFirestore.instance.collection("goods").doc();
-    final DocumentSnapshot<Map<String, dynamic>> documentSnapshot =
-        await documentReference.get();
-    Goods goods = Goods.fromSnapShot(documentSnapshot);
-    return goods;
-  }
+  // // READ 각각의 데이터를 콕 집어서 가져올때
+  // Future<Goods> getGoodsModel(String searchTerm) async {
+  //   DocumentReference<Map<String, dynamic>> documentReference =
+  //       FirebaseFirestore.instance.collection("goods").doc();
+  //   final DocumentSnapshot<Map<String, dynamic>> documentSnapshot =
+  //       await documentReference.get();
+  //   Goods goods = Goods.fromSnapShot(documentSnapshot);
+  //   return goods;
+  // }
 
   //READ 컬렉션 내 모든 데이터를 가져올때
-  Future<List<Goods>> getGoodsModels() async {
+  Future<List<Goods>> getGoodsModels({String searchGoods = ""}) async {
     CollectionReference<Map<String, dynamic>> collectionReference =
         FirebaseFirestore.instance.collection("goods");
-    QuerySnapshot<Map<String, dynamic>> querySnapshot =
-        await collectionReference.orderBy('uploadTime', descending: true).get();
 
-    List<Goods> goods = [];
-    for (var doc in querySnapshot.docs) {
-      Goods fireModel = Goods.fromQuerySnapshot(doc);
-      goods.add(fireModel);
+    // 전부 조회
+    if (searchGoods == "") {
+      QuerySnapshot<Map<String, dynamic>> querySnapshot =
+          await collectionReference
+              .orderBy('uploadTime', descending: true)
+              .get();
+      List<Goods> goods = [];
+      for (var doc in querySnapshot.docs) {
+        Goods fireModel = Goods.fromQuerySnapshot(doc);
+        goods.add(fireModel);
+      }
+      return goods;
+      // 검색하는게 있을 경우
+    } else {
+      QuerySnapshot<Map<String, dynamic>> querySnapshot =
+          await collectionReference
+              .where('title', isGreaterThanOrEqualTo: searchGoods)
+              .where('title', isLessThanOrEqualTo: '$searchGoods\uf8ff')
+              .orderBy('title')
+              .get();
+      List<Goods> goods = [];
+      for (var doc in querySnapshot.docs) {
+        Goods fireModel = Goods.fromQuerySnapshot(doc);
+        goods.add(fireModel);
+      }
+      return goods;
     }
-    return goods;
   }
 // //Delete
 //   Future<void> delGoodsModel(DocumentReference reference) async {
