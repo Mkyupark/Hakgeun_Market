@@ -2,11 +2,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:hakgeun_market/componenets/appbar.dart';
+import 'package:hakgeun_market/models/goods.dart';
 import 'package:hakgeun_market/pages/chatroom/chatlist.dart';
-import 'package:hakgeun_market/pages/detail.dart';
 import 'package:hakgeun_market/pages/home.dart';
-import 'package:hakgeun_market/pages/roading.dart';
 import 'package:hakgeun_market/provider/navigation_provider.dart';
+import 'package:hakgeun_market/service/goodsService.dart';
 import 'package:provider/provider.dart';
 
 // react -> Router 와 같은 개념, 페이지 이동을 위함 (Navigation)
@@ -19,16 +19,18 @@ class App extends StatefulWidget {
 
 class _AppState extends State<App> {
   late NavigationProvider _navigationBar;
+  List<Goods>? searchData;
+  GoodsService goodsService = GoodsService();
 
   Widget _bodyWidget() {
     switch (_navigationBar.currentNavigationIndex) {
       case 0:
-        return Home();
+        return Home(SearchData: searchData ?? []);
       case 1:
         return Container();
       case 2:
         return ChatList();
-      case 3: 
+      case 3:
         return Container();
     }
     return Container();
@@ -38,7 +40,6 @@ class _AppState extends State<App> {
     return BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         onTap: (int index) {
-          print('selectedIdx : ' + index.toString());
           _navigationBar.updatePage(index);
         },
         currentIndex: _navigationBar.currentNavigationIndex,
@@ -93,7 +94,13 @@ class _AppState extends State<App> {
     _navigationBar = Provider.of<NavigationProvider>(context);
 
     return Scaffold(
-      appBar: CustomAppBar(),
+      appBar: CustomAppBar(
+        onSearchCallback: (searchTerm) {
+          setState(() {
+            searchData = searchTerm; // searchData 업데이트
+          });
+        },
+      ),
       body: _bodyWidget(),
       bottomNavigationBar: _bottomNavigationBarWidget(),
     );
