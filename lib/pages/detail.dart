@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:hakgeun_market/models/goods.dart';
 import 'package:hakgeun_market/pages/chatroom/chatroom.dart';
 
 class Detail extends StatefulWidget {
-  final String title;
-  const Detail({Key? key, required this.title}) : super(key: key);
+  final List<Goods> search;
+  const Detail({super.key, required this.search});
 
   @override
   State<Detail> createState() => _DetailState();
@@ -12,6 +13,7 @@ class Detail extends StatefulWidget {
 
 class _DetailState extends State<Detail> {
   get controller => null;
+  
 
   PreferredSizeWidget _appbarWidget() {
     return PreferredSize(
@@ -153,7 +155,7 @@ class _DetailState extends State<Detail> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              widget.title,
+              widget.goods.id ?? "0",
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 20,
