@@ -1,13 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class User {
+class UserModel {
   final String id;
   final String phoneNum;
   final String nickName;
   final String schoolName;
   final double mannerTemperature;
 
-  User({
+  UserModel({
     required this.id,
     required this.phoneNum,
     required this.nickName,
@@ -24,9 +24,9 @@ class User {
     };
   }
 
-  factory User.fromDocument(DocumentSnapshot doc) {
+  factory UserModel.fromDocument(DocumentSnapshot doc) {
     var data = doc.data() as Map<String, dynamic>;
-    return User(
+    return UserModel(
       id: doc.id,
       phoneNum: data['phoneNumber'] ?? '정보없음',
       nickName: data['nickname'] ?? '이름없음',

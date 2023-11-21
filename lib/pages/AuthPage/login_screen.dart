@@ -1,10 +1,12 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:hakgeun_market/models/user.dart';
 import 'package:hakgeun_market/pages/AuthPage/regist_screen.dart';
 import 'package:hakgeun_market/pages/app.dart';
-import 'package:hakgeun_market/pages/chatroom/chatlist.dart';
-import 'package:hakgeun_market/pages/home.dart';
 import 'package:hakgeun_market/provider/user_provider.dart';
-import 'package:provider/provider.dart';
+import 'package:hakgeun_market/service/AuthService.dart';
+import 'package:hakgeun_market/service/userService.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -14,127 +16,162 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController loginPhoneController = TextEditingController();
-  final TextEditingController _smsController = TextEditingController();
-  @override
-  void dispose() {
-    loginPhoneController.dispose();
-    _smsController.dispose();
-    super.dispose();
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _otpController = TextEditingController();
+  final AuthService _authService = AuthService();
+  String? _verificationId;
+  final userService = UserService();
+  bool _isOTPSent = false;
+
+  void _verifyPhoneNumber() async {
+    String phoneNumber = _phoneController.text.replaceAll(RegExp(r'\D'), '');
+    phoneNumber = '+82${phoneNumber.substring(1)}';
+
+    await _authService.verifyPhoneNumber(
+      phoneNumber,
+      (verificationId) {
+        // 코드가 전송되면 이 콜백이 호출됩니다.
+        setState(() {
+          _verificationId = verificationId;
+          _isOTPSent = true; // OTP가 전송되었음을 나타냅니다.
+        });
+      },
+    );
+  }
+
+  void _signInWithOTP() async {
+    if (_verificationId != null && _otpController.text.isNotEmpty) {
+      bool isSuccess = await _authService.signInWithVerificationCode(
+        _verificationId!,
+        _otpController.text,
+      );
+
+      if (isSuccess) {
+        // FirebaseAuth 인스턴스로부터 현재 사용자의 uid를 가져옵니다.
+        User? currentUser = FirebaseAuth.instance.currentUser;
+
+        if (currentUser != null) {
+          // 사용자가 이미 가입되어 있는지 확인합니다.
+          bool isRegistered =
+              await userService.isUserRegistered(currentUser.uid);
+
+          if (isRegistered) {
+            // 이미 가입된 사용자인 경우, User 정보를 가져와서 UserProvider에 저장합니다.
+            UserModel? user = await userService.getUserFromUID(currentUser.uid);
+            if (user != null) {
+              // UserProvider에 저장
+              UserProvider().setUser(user);
+            }
+            // App 화면으로 이동
+            // ignore: use_build_context_synchronously
+            Navigator.pushReplacement(
+                context, MaterialPageRoute(builder: (context) => App()));
+          } else {
+            // 가입되지 않은 사용자인 경우, RegistScreen으로 이동하며 휴대폰 번호 정보를 전달합니다.
+            // ignore: use_build_context_synchronously
+            Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        RegistScreen(phoneNumber: _phoneController.text)));
+          }
+        } else {
+          // 사용자가 로그인되어 있지 않다면, 적절한 처리를 수행하세요.
+          // 예를 들어, 로그인 페이지로 이동하거나 메시지를 표시할 수 있습니다.
+          // ...
+        }
+      } else {
+        _showErrorDialog('Failed to Sign In');
+      }
+    }
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Error'),
+        content: Text(message),
+        actions: <Widget>[
+          TextButton(
+            child: const Text('OK'),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white, // AppBar의 배경색을 흰색으로 설정
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black), // 아이콘 색상 설정
-          onPressed: () {
-            Navigator.of(context).pop(); // 뒤로 가기 아이콘 동작
-          },
-        ),
+        title: const Text('휴대폰 인증', style: TextStyle(color: Colors.black)),
+        backgroundColor: Colors.white,
+        iconTheme: const IconThemeData(color: Colors.black),
         elevation: 0,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 10.0),
+          children: <Widget>[
             const Text(
-              "안녕하세요!",
-              style: TextStyle(
-                fontSize: 24.0,
-              ),
+              '안녕하세요!\n휴대폰 번호로 로그인 해주세요.',
+              style: TextStyle(fontSize: 24),
             ),
-            const SizedBox(height: 7.0),
+            const SizedBox(height: 10),
             const Text(
-              "휴대폰번호로 로그인해주세요.",
-              style: TextStyle(
-                fontSize: 24.0,
-              ),
+              '휴대폰 번호는 안전하게 보관되며 이웃들에게 공개되지 않아요.',
+              style: TextStyle(fontSize: 14),
             ),
-            const SizedBox(height: 20.0),
+            const SizedBox(height: 30),
             TextField(
-              controller: loginPhoneController,
+              controller: _phoneController,
               keyboardType: TextInputType.number,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               decoration: const InputDecoration(
-                labelText: "휴대폰번호",
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: Colors.grey, // 회색 테두리
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 10.0),
-            TextField(
-              controller: _smsController,
-              decoration: const InputDecoration(
-                labelText: "인증번호",
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: Colors.grey, // 회색 테두리
-                  ),
-                ),
-              ),
-              obscureText: true,
-            ),
-            const SizedBox(height: 10.0),
-            Row(
-              children: [
-                const Text(
-                  "학근마켓이 처음이신가요?",
-                  style: TextStyle(
-                    fontSize: 16.0,
-                  ),
-                ),
-                TextButton(
-                  onPressed: () {
-                    // 회원가입 페이지로 이동하는 코드를 여기에 추가
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const RegistScreen()));
-                  },
-                  child: const Text(
-                    "회원가입",
-                    style: TextStyle(
-                      color: Colors.green,
-                      fontSize: 16.0,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10.0),
-            ElevatedButton(
-              onPressed: () {
-                // 클릭 이벤트 처리
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => App(),
-                  ),
-                );
-                // 로그인 버튼을 클릭했을 때의 동작을 여기에 추가
+                  labelText: '휴대폰 번호 (-없이 숫자만 입력)',
+                  border: OutlineInputBorder()),
+              cursorColor: const Color(0xFF2DB400),
+              onChanged: (value) {
+                setState(() {});
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF2DB400),
-              ),
-              child: const SizedBox(
-                width: double.infinity,
-                height: 50.0,
-                child: Center(
-                  child: Text(
-                    "로그인",
-                    style: TextStyle(
-                      fontSize: 16.0,
-                    ),
-                  ),
+            ),
+            const SizedBox(height: 20),
+            if (_isOTPSent) ...[
+              TextField(
+                controller: _otpController,
+                keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                decoration: const InputDecoration(
+                  labelText: '인증번호 입력',
+                  border: OutlineInputBorder(),
                 ),
+                onChanged: (value) {
+                  setState(() {});
+                },
+              ),
+              const SizedBox(height: 20),
+            ],
+            SizedBox(
+              width: double.infinity,
+              height: 40.0,
+              child: ElevatedButton(
+                onPressed: _isOTPSent
+                    ? _phoneController.text.isNotEmpty &&
+                            _otpController.text.isNotEmpty
+                        ? _signInWithOTP
+                        : null
+                    : _phoneController.text.isNotEmpty
+                        ? _verifyPhoneNumber
+                        : null,
+                style: ElevatedButton.styleFrom(
+                  onSurface: const Color(0xFF2DB400),
+                  primary:
+                      const Color(0xFF2DB400), // Color when button is disabled
+                ),
+                child: Text(_isOTPSent ? '인증하기' : '인증문자 받기'),
               ),
             ),
           ],

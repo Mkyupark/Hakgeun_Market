@@ -1,126 +1,45 @@
 // ignore_for_file: use_build_context_synchronously
 
-import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+import 'package:hakgeun_market/models/user.dart';
 import 'package:hakgeun_market/pages/app.dart';
+import 'package:hakgeun_market/service/userService.dart';
 
 class RegistScreen extends StatefulWidget {
-  const RegistScreen({super.key});
+  final String phoneNumber;
 
+  const RegistScreen({super.key, required this.phoneNumber});
   @override
   _RegistScreenState createState() => _RegistScreenState();
 }
 
 class _RegistScreenState extends State<RegistScreen> {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
-  String selectedSchool = "금오공과대학교";
-  final TextEditingController _phoneController = TextEditingController();
-  final TextEditingController _smsController = TextEditingController();
   final TextEditingController _nicknameController = TextEditingController();
-
-  String? verificationId;
-
-  @override
-  void dispose() {
-    _phoneController.dispose();
-    _smsController.dispose();
-    _nicknameController.dispose();
-    super.dispose();
-  }
-
-  bool get isPhoneNumberValid =>
-      _phoneController.text.isNotEmpty; // 휴대폰 번호 유효성 검사
+  String? selectedSchool;
   bool get isFormValid =>
-      isPhoneNumberValid &&
-      _smsController.text.isNotEmpty &&
-      _nicknameController.text.isNotEmpty; // 폼 유효성 검사
+      _nicknameController.text.isNotEmpty && selectedSchool != null;
 
-  Future<void> _verifyPhoneNumber() async {
-    verificationCompleted(AuthCredential phoneAuthCredential) async {
-      await _auth.signInWithCredential(phoneAuthCredential);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Phone number automatically verified!')),
-      );
-    }
-
-    verificationFailed(FirebaseAuthException e) {
-      if (e.code == 'invalid-phone-number') {
-        print('The provided phone number is not valid.');
-      }
-      print(e.code);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Verification failed. Please try again.')),
-      );
-    }
-
-    codeSent(String verificationId, int? resendToken) async {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Verification code sent on the phone number')),
-      );
-      this.verificationId = verificationId;
-    }
-
-    codeAutoRetrievalTimeout(String verificationId) {
-      this.verificationId = verificationId;
-    }
-
-    await _auth.verifyPhoneNumber(
-      phoneNumber: '+82${_phoneController.text.substring(1)}',
-      verificationCompleted: verificationCompleted,
-      verificationFailed: verificationFailed,
-      codeSent: codeSent,
-      codeAutoRetrievalTimeout: codeAutoRetrievalTimeout,
-    );
-  }
-
-  Future<void> _signInWithPhoneNumber() async {
-    try {
-      final AuthCredential credential = PhoneAuthProvider.credential(
-        verificationId: verificationId!,
-        smsCode: _smsController.text,
+  void register() async {
+    if (isFormValid) {
+      final user = UserModel(
+        id: FirebaseAuth.instance.currentUser!.uid,
+        phoneNum: widget.phoneNumber,
+        nickName: _nicknameController.text,
+        schoolName: selectedSchool!,
+        mannerTemperature: 36.5, // 예시로 기본 매너온도를 설정
       );
 
-      final User? user = (await _auth.signInWithCredential(credential)).user;
-      if (user != null) {
-        await _registerUser(
-          user.uid,
-          _phoneController.text,
-          _nicknameController.text,
-        );
-      }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text('Successfully signed up with UID: ${user?.uid}')),
-      );
-      // TODO : 회원가입 시 바로 홈화면으로 넘어가게
-      // 유저정보 저장하기
-      Navigator.push(context, MaterialPageRoute(builder: (context) => App()));
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to sign up: $e')),
-      );
-    }
-  }
+      // UserService 인스턴스 생성
+      final userService = UserService();
 
-  Future<void> _registerUser(
-      String uid, String phoneNumber, String nickname) async {
-    try {
-      await _firestore.collection('users').doc(uid).set({
-        'phoneNumber': phoneNumber,
-        'nickname': nickname,
-        'school': selectedSchool,
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('User information saved successfully')),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to save user information: $e')),
+      // Firestore에 사용자 정보 저장
+      await userService.createUser(user);
+
+      // App 화면으로 이동
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => App()),
       );
     }
   }
@@ -145,50 +64,16 @@ class _RegistScreenState extends State<RegistScreen> {
           },
         ),
         elevation: 0,
-        title: const Text("회원가입", style: TextStyle(color: Colors.black)),
+        title: const Text("프로필 설정", style: TextStyle(color: Colors.black)),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: ListView(
           children: [
             const SizedBox(height: 10.0),
-            const Text("안녕하세요!", style: TextStyle(fontSize: 24.0)),
+            const Text("반갑습니다!", style: TextStyle(fontSize: 24.0)),
             const SizedBox(height: 7.0),
-            const Text("휴대폰 번호로 회원가입 해주세요.", style: TextStyle(fontSize: 24.0)),
-            const SizedBox(height: 20.0),
-            TextField(
-              controller: _phoneController,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                labelText: "휴대폰번호(-없이 번호만 입력)",
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.grey),
-                ),
-              ),
-              onChanged: (value) => setState(() {}),
-            ),
-            const SizedBox(height: 10.0),
-            TextField(
-              controller: _smsController,
-              decoration: const InputDecoration(
-                labelText: "인증 코드",
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.grey),
-                ),
-              ),
-            ),
-            const SizedBox(height: 10.0),
-            ElevatedButton(
-              onPressed: isPhoneNumberValid ? _verifyPhoneNumber : null,
-              style: ElevatedButton.styleFrom(primary: const Color(0xFF2DB400)),
-              child: const SizedBox(
-                width: double.infinity,
-                height: 40.0,
-                child: Center(
-                  child: Text("SMS 보내기", style: TextStyle(fontSize: 16.0)),
-                ),
-              ),
-            ),
+            const Text("프로필 설정을 해주세요.", style: TextStyle(fontSize: 24.0)),
             const SizedBox(height: 20.0),
             TextField(
               controller: _nicknameController,
@@ -220,13 +105,13 @@ class _RegistScreenState extends State<RegistScreen> {
             ),
             const SizedBox(height: 20.0),
             ElevatedButton(
-              onPressed: isFormValid ? _signInWithPhoneNumber : null,
+              onPressed: isFormValid ? () => register() : null,
               style: ElevatedButton.styleFrom(primary: const Color(0xFF2DB400)),
               child: const SizedBox(
                 width: double.infinity,
                 height: 40.0,
                 child: Center(
-                  child: Text("회원가입 완료", style: TextStyle(fontSize: 16.0)),
+                  child: Text("프로필 설정 완료", style: TextStyle(fontSize: 16.0)),
                 ),
               ),
             ),
