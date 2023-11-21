@@ -15,26 +15,16 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController loginPhoneController = TextEditingController();
-  final TextEditingController loginPasswordController = TextEditingController();
+  final TextEditingController _smsController = TextEditingController();
   @override
   void dispose() {
     loginPhoneController.dispose();
-    loginPasswordController.dispose();
+    _smsController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final userProvider = Provider.of<UserProvider>(context);
-    void login() {
-      userProvider.login(
-          loginPhoneController.text, loginPasswordController.text);
-
-      if (userProvider.isLoggedIn) {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => App()));
-      }
-    }
-
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -81,9 +71,9 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             const SizedBox(height: 10.0),
             TextField(
-              controller: loginPasswordController,
+              controller: _smsController,
               decoration: const InputDecoration(
-                labelText: "비밀번호",
+                labelText: "인증번호",
                 border: OutlineInputBorder(
                   borderSide: BorderSide(
                     color: Colors.grey, // 회색 테두리

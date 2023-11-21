@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:hakgeun_market/pages/app.dart';
 
 class RegistScreen extends StatefulWidget {
   const RegistScreen({super.key});
@@ -19,7 +20,6 @@ class _RegistScreenState extends State<RegistScreen> {
   String selectedSchool = "금오공과대학교";
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _smsController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _nicknameController = TextEditingController();
 
   String? verificationId;
@@ -28,10 +28,16 @@ class _RegistScreenState extends State<RegistScreen> {
   void dispose() {
     _phoneController.dispose();
     _smsController.dispose();
-    _passwordController.dispose();
     _nicknameController.dispose();
     super.dispose();
   }
+
+  bool get isPhoneNumberValid =>
+      _phoneController.text.isNotEmpty; // 휴대폰 번호 유효성 검사
+  bool get isFormValid =>
+      isPhoneNumberValid &&
+      _smsController.text.isNotEmpty &&
+      _nicknameController.text.isNotEmpty; // 폼 유효성 검사
 
   Future<void> _verifyPhoneNumber() async {
     verificationCompleted(AuthCredential phoneAuthCredential) async {
@@ -84,7 +90,6 @@ class _RegistScreenState extends State<RegistScreen> {
         await _registerUser(
           user.uid,
           _phoneController.text,
-          _passwordController.text,
           _nicknameController.text,
         );
       }
@@ -92,7 +97,9 @@ class _RegistScreenState extends State<RegistScreen> {
         SnackBar(
             content: Text('Successfully signed up with UID: ${user?.uid}')),
       );
-      Navigator.of(context).pop();
+      // TODO : 회원가입 시 바로 홈화면으로 넘어가게
+      // 유저정보 저장하기
+      Navigator.push(context, MaterialPageRoute(builder: (context) => App()));
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to sign up: $e')),
@@ -101,11 +108,10 @@ class _RegistScreenState extends State<RegistScreen> {
   }
 
   Future<void> _registerUser(
-      String uid, String phoneNumber, String password, String nickname) async {
+      String uid, String phoneNumber, String nickname) async {
     try {
       await _firestore.collection('users').doc(uid).set({
         'phoneNumber': phoneNumber,
-        'password': password,
         'nickname': nickname,
         'school': selectedSchool,
       });
@@ -154,11 +160,12 @@ class _RegistScreenState extends State<RegistScreen> {
               controller: _phoneController,
               keyboardType: TextInputType.number,
               decoration: const InputDecoration(
-                labelText: "휴대폰번호",
+                labelText: "휴대폰번호(-없이 번호만 입력)",
                 border: OutlineInputBorder(
                   borderSide: BorderSide(color: Colors.grey),
                 ),
               ),
+              onChanged: (value) => setState(() {}),
             ),
             const SizedBox(height: 10.0),
             TextField(
@@ -172,7 +179,7 @@ class _RegistScreenState extends State<RegistScreen> {
             ),
             const SizedBox(height: 10.0),
             ElevatedButton(
-              onPressed: _verifyPhoneNumber,
+              onPressed: isPhoneNumberValid ? _verifyPhoneNumber : null,
               style: ElevatedButton.styleFrom(primary: const Color(0xFF2DB400)),
               child: const SizedBox(
                 width: double.infinity,
@@ -183,15 +190,6 @@ class _RegistScreenState extends State<RegistScreen> {
               ),
             ),
             const SizedBox(height: 20.0),
-            TextField(
-              controller: _passwordController,
-              obscureText: true,
-              decoration: const InputDecoration(
-                labelText: "비밀번호",
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 10.0),
             TextField(
               controller: _nicknameController,
               decoration: const InputDecoration(
@@ -222,7 +220,7 @@ class _RegistScreenState extends State<RegistScreen> {
             ),
             const SizedBox(height: 20.0),
             ElevatedButton(
-              onPressed: _signInWithPhoneNumber,
+              onPressed: isFormValid ? _signInWithPhoneNumber : null,
               style: ElevatedButton.styleFrom(primary: const Color(0xFF2DB400)),
               child: const SizedBox(
                 width: double.infinity,
