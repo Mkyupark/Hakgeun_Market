@@ -1,4 +1,5 @@
 {
   "cmake.sourceDirectory": "C:/opensource/project/linux",
-  "java.configuration.updateBuildConfiguration": "interactive"
+  "java.configuration.updateBuildConfiguration": "interactive",
+  "java.compile.nullAnalysis.mode": "automatic"
 }
