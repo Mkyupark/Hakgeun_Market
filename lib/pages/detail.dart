@@ -4,8 +4,9 @@ import 'package:hakgeun_market/models/goods.dart';
 import 'package:hakgeun_market/pages/chatroom/chatroom.dart';
 
 class Detail extends StatefulWidget {
-  final List<Goods> search;
-  const Detail({super.key, required this.search});
+  final List<Goods> searchData;
+  const Detail({super.key, required this.searchData});  // 생성자: 상품 데이터 리스트를 받습니다.
+
 
   @override
   State<Detail> createState() => _DetailState();
@@ -14,7 +15,7 @@ class Detail extends StatefulWidget {
 class _DetailState extends State<Detail> {
   get controller => null;
   
-
+  // 앱 바 위젯 생성 함수
   PreferredSizeWidget _appbarWidget() {
     return PreferredSize(
       preferredSize: const Size.fromHeight(56),
@@ -33,7 +34,7 @@ class _DetailState extends State<Detail> {
       ),
     );
   }
-
+  // 이미지 슬라이더 위젯 생성 함수
   Widget _makeSliderimage() {
     return Container(
       child: Image.asset(
@@ -44,6 +45,7 @@ class _DetailState extends State<Detail> {
     );
   }
 
+  // 매너 온도 등을 표시하는 위젯 생성 함수
   Widget _temp() {
     return Container(
       width: 60,
@@ -107,6 +109,7 @@ class _DetailState extends State<Detail> {
     ]));
   }
 
+  // 판매자 정보와 매너 온도를 표시하는 위젯 생성 함수
   Widget _sellerSimpleInfo() {
     return Padding(
       padding: const EdgeInsets.all(15.0),
@@ -140,6 +143,7 @@ class _DetailState extends State<Detail> {
     );
   }
 
+  // 구분선 생성 함수
   Widget _line() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 15),
@@ -148,6 +152,7 @@ class _DetailState extends State<Detail> {
     );
   }
 
+  // 상품 내용 상세 정보를 표시하는 위젯 생성 함수
   Widget _contentDetail() {
     return Container(
         margin: const EdgeInsets.symmetric(horizontal: 15),
@@ -155,7 +160,7 @@ class _DetailState extends State<Detail> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              widget.goods.id ?? "0",
+              "title",
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 20,
@@ -186,6 +191,7 @@ class _DetailState extends State<Detail> {
         ));
   }
 
+  // 판매자의 다른 상품 정보를 표시하는 섹션 생성 함수
   Widget _otherCellContents() {
     return const Padding(
       padding: EdgeInsets.all(15),
@@ -216,6 +222,7 @@ class _DetailState extends State<Detail> {
     );
   }
 
+  // 하단 바 생성 함수
   Widget _bottomBarWidget() {
     return Container(
       width: 50,
@@ -295,6 +302,7 @@ class _DetailState extends State<Detail> {
     );
   }
 
+  // 메인 바디 위젯 생성 함수
   Widget _bodyWidget() {
     return CustomScrollView(controller: controller, slivers: [
       SliverList(
