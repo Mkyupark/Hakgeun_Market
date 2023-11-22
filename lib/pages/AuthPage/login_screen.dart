@@ -7,6 +7,7 @@ import 'package:hakgeun_market/pages/app.dart';
 import 'package:hakgeun_market/provider/user_provider.dart';
 import 'package:hakgeun_market/service/AuthService.dart';
 import 'package:hakgeun_market/service/userService.dart';
+import 'package:provider/provider.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -60,7 +61,8 @@ class _LoginScreenState extends State<LoginScreen> {
             UserModel? user = await userService.getUserFromUID(currentUser.uid);
             if (user != null) {
               // UserProvider에 저장
-              UserProvider().setUser(user);
+              // ignore: use_build_context_synchronously
+              Provider.of<UserProvider>(context, listen: false).setUser(user);
             }
             // App 화면으로 이동
             // ignore: use_build_context_synchronously
