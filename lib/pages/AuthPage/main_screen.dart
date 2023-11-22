@@ -53,7 +53,7 @@ class MyHomePage extends StatelessWidget {
                   child: ElevatedButton(
                     onPressed: () {
                       // 버튼이 클릭될 때의 동작 정의
-                      Navigator.push(
+                      Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
                               builder: (context) => const LoginScreen()));

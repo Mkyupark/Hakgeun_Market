@@ -4,7 +4,7 @@ import 'package:hakgeun_market/models/user.dart';
 class Goods {
   String? id;
   List<String>? photoList;
-  User? user;
+  UserModel? user;
   String title;
   String? content;
   String price;
