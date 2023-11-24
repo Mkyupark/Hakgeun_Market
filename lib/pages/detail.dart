@@ -13,8 +13,10 @@ class Detail extends StatefulWidget {
 }
 
 class _DetailState extends State<Detail> {
-  List<Goods>? searchData;
+  
+  Goods? goodsData;
   GoodsService goodsService = GoodsService();
+  bool isLoading = true;
 
   // 앱 바 위젯 생성 함수
   PreferredSizeWidget _appbarWidget() {
@@ -35,8 +37,8 @@ class _DetailState extends State<Detail> {
       ),
     );
   }
-  // 이미지 슬라이더 위젯 생성 함수
-  Widget _makeSliderimage() {
+  // 이미지 위젯 생성 함수
+  Widget _makeimage() {
     return Container(
       child: Image.asset(
         'assets/images/sample1.jpg',
@@ -284,11 +286,8 @@ class _DetailState extends State<Detail> {
                       // 해당 Text 클릭시 채팅 페이지로 이동
                       Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (context) => ChatRoom(
-                            rname: '채팅 상대 0',
-                            rid: 'room 0',
-                            uid: 'user1', // 임의의 사용자 ID
-                            name: 'John', // 임의의 사용자 이름
+                          builder: (context) => const ChatRoom(rname: '', uid1: '', uid2: '', rid: '', uid: '', name: '',
+                        
                           ),
                         ),
                       );
@@ -309,7 +308,7 @@ class _DetailState extends State<Detail> {
       SliverList(
         delegate: SliverChildListDelegate(
           [
-            _makeSliderimage(),
+            _makeimage(),
             _sellerSimpleInfo(),
             _line(),
             _contentDetail(),

@@ -50,12 +50,9 @@ class _ChatListState extends State<ChatList> {
                      Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => ChatRoom(
-                    rname: rooms[index]['rname'],
-                    uid1: rooms[index]['uid1'],
-                    uid2: rooms[index]['uid2'],
-                  ),),);
-                    },
+                  builder: (context) => Container()
+                  ),);
+                  },
                   );
                 } else {
                   return ListTile(
@@ -66,11 +63,7 @@ class _ChatListState extends State<ChatList> {
                            Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => ChatRoom(
-                    rname: rooms[index]['rname'],
-                    uid1: rooms[index]['uid2'],
-                    uid2: rooms[index]['uid1'],
-                  ),),);
+                  builder: (context) => Container(),),);
               
                     },
                   );
