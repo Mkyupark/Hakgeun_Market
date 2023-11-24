@@ -1,20 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:hakgeun_market/models/goods.dart';
+import 'package:hakgeun_market/service/goodsService.dart';
 import 'package:hakgeun_market/pages/chatroom/chatroom.dart';
 
 class Detail extends StatefulWidget {
-  final List<Goods> searchData;
-  const Detail({super.key, required this.searchData});  // 생성자: 상품 데이터 리스트를 받습니다.
-
+  final String? id;
+  const Detail({super.key, required this.id});  // 생성자: 상품의 id를 받음.
 
   @override
   State<Detail> createState() => _DetailState();
 }
 
 class _DetailState extends State<Detail> {
-  get controller => null;
-  
+  List<Goods>? searchData;
+  GoodsService goodsService = GoodsService();
+
   // 앱 바 위젯 생성 함수
   PreferredSizeWidget _appbarWidget() {
     return PreferredSize(
@@ -304,7 +305,7 @@ class _DetailState extends State<Detail> {
 
   // 메인 바디 위젯 생성 함수
   Widget _bodyWidget() {
-    return CustomScrollView(controller: controller, slivers: [
+    return CustomScrollView(slivers: [
       SliverList(
         delegate: SliverChildListDelegate(
           [
