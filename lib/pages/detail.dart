@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
 import 'package:hakgeun_market/models/goods.dart';
 import 'package:hakgeun_market/service/goodsService.dart';
 import 'package:hakgeun_market/pages/chatroom/chatroom.dart';
@@ -7,7 +8,7 @@ import 'package:hakgeun_market/pages/chatroom/chatroom.dart';
 class Detail extends StatefulWidget {
   final String? id;
   const Detail({super.key, required this.id});  // 생성자: 상품의 id를 받음.
-
+  
   @override
   State<Detail> createState() => _DetailState();
 }
@@ -15,8 +16,30 @@ class Detail extends StatefulWidget {
 class _DetailState extends State<Detail> {
   
   Goods? goodsData;
-  GoodsService goodsService = GoodsService();
-  bool isLoading = true;
+  var isLoading = true;
+
+  @override
+  void initState() {  // 위젯이 생성될 때 Firebase에서 데이터를 가져옴.(상태초기화)
+    super.initState();
+    _loadGoodsData();
+  }
+
+//firebase에서 Goods를 가져와 넘겨온 goods.id와 비교함.
+  void _loadGoodsData() async {
+    final GoodsService goodsService = GoodsService();
+    List<Goods> goodsList =
+        await goodsService.getGoodsModels();
+
+    Goods? matchingGoods = goodsList.firstWhereOrNull(
+    (goods) => goods.id == widget.id,
+  );
+
+  // 일치하는 Goods 객체를 상태에 저장
+  setState(() {
+    goodsData = matchingGoods;
+    isLoading = false;
+  });
+  }
 
   // 앱 바 위젯 생성 함수
   PreferredSizeWidget _appbarWidget() {
@@ -39,13 +62,17 @@ class _DetailState extends State<Detail> {
   }
   // 이미지 위젯 생성 함수
   Widget _makeimage() {
+     if (goodsData?.photoList == null || goodsData!.photoList.isEmpty) {
+    return Container(); // 사진이 없을 경우 표시할 위젯(현재는 빈 컨테이너)
+  }
+    String imageUrl = goodsData!.photoList.first;
     return Container(
-      child: Image.asset(
-        'assets/images/sample1.jpg',
-        width: 700,
-        fit: BoxFit.fill,
-      ),
-    );
+    width: double.infinity, 
+    child: Image.network(
+      imageUrl,
+      fit: BoxFit.cover, 
+    ),
+  ); 
   }
 
   // 매너 온도 등을 표시하는 위젯 생성 함수
@@ -157,33 +184,34 @@ class _DetailState extends State<Detail> {
 
   // 상품 내용 상세 정보를 표시하는 위젯 생성 함수
   Widget _contentDetail() {
+    if(goodsData == null)return Container(); // 데이터가 없는 경우
     return Container(
         margin: const EdgeInsets.symmetric(horizontal: 15),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              "title",
+              goodsData!.title,
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 20,
               ),
             ),
-            const Text(
-              "주방용품 · 20시간 전",
+            Text(
+              goodsData!.category,
               style: TextStyle(
                 color: Colors.grey,
                 fontSize: 12,
               ),
             ),
             const SizedBox(height: 15),
-            const Text(
-              "선물상품이고 깨진부분 없습니다!\n 국그릇, 밥그릇 다 있습니다!",
+            Text(
+              goodsData!.content,
               style: TextStyle(fontSize: 15, height: 1.5),
             ),
             const SizedBox(height: 15),
-            const Text(
-              "채팅2 · 관심 35 · 조회 350",
+            Text(
+              goodsData!.readCnt,
               style: TextStyle(
                 fontSize: 12,
                 color: Colors.grey,
@@ -304,6 +332,9 @@ class _DetailState extends State<Detail> {
 
   // 메인 바디 위젯 생성 함수
   Widget _bodyWidget() {
+    if(isLoading){
+      return Center(child: CircularProgressIndicator());
+    }
     return CustomScrollView(slivers: [
       SliverList(
         delegate: SliverChildListDelegate(
@@ -360,4 +391,5 @@ class _DetailState extends State<Detail> {
         body: _bodyWidget(),
         bottomNavigationBar: _bottomBarWidget());
   }
+
 }

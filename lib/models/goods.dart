@@ -3,13 +3,13 @@ import 'package:hakgeun_market/models/user.dart';
 
 class Goods {
   String? id;
-  List<String>? photoList;
+  List<String> photoList;
   UserModel? user;
   String title;
-  String? content;
+  String content;
   String price;
   String? likeCnt;
-  String? readCnt;
+  String readCnt;
   Timestamp? uploadTime;
   Timestamp? updateTime;
   String category;
