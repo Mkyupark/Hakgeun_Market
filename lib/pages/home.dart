@@ -51,9 +51,7 @@ class _HomeState extends State<Home> {
             onTap: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) => const Detail(
-                    title: '',
-                  ),
+                  builder: (context) => Detail(id: '${goods.id}',),
                 ),
               );
             },
@@ -65,7 +63,7 @@ class _HomeState extends State<Home> {
                   ClipRRect(
                     borderRadius: const BorderRadius.all(Radius.circular(10)),
                     child: Hero(
-                      tag: goods.id!,
+                      tag: goods.id !,
                       child:
                           goods.photoList != null && goods.photoList!.isNotEmpty
                               ? Image.asset(

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ChatRoom extends StatefulWidget {
-  const ChatRoom({Key? key, required this.rname, required this.uid1, required this.uid2});
+  const ChatRoom({Key? key, required this.rname, required this.uid1, required this.uid2, required String rid, required String uid, required String name});
 
   final String rname;
   final String uid1;
