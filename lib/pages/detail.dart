@@ -6,39 +6,28 @@ import 'package:hakgeun_market/service/goodsService.dart';
 import 'package:hakgeun_market/pages/chatroom/chatroom.dart';
 
 class Detail extends StatefulWidget {
-  final String? id;
-  const Detail({super.key, required this.id});  // 생성자: 상품의 id를 받음.
-  
+  final Goods goods;
+  final List<Goods> goodsDataList;
+  const Detail(
+      {super.key,
+      required this.goods,
+      required this.goodsDataList}); // 생성자: 상품의 id를 받음.
+
   @override
   State<Detail> createState() => _DetailState();
 }
 
 class _DetailState extends State<Detail> {
-  
-  Goods? goodsData;
+  late Goods? goodsData;
+  late List<Goods>? goodsList;
   var isLoading = true;
 
   @override
-  void initState() {  // 위젯이 생성될 때 Firebase에서 데이터를 가져옴.(상태초기화)
+  void initState() {
+    // 위젯이 생성될 때 Firebase에서 데이터를 가져옴.(상태초기화)
     super.initState();
-    _loadGoodsData();
-  }
-
-//firebase에서 Goods를 가져와 넘겨온 goods.id와 비교함.
-  void _loadGoodsData() async {
-    final GoodsService goodsService = GoodsService();
-    List<Goods> goodsList =
-        await goodsService.getGoodsModels();
-
-    Goods? matchingGoods = goodsList.firstWhereOrNull(
-    (goods) => goods.id == widget.id,
-  );
-
-  // 일치하는 Goods 객체를 상태에 저장
-  setState(() {
-    goodsData = matchingGoods;
-    isLoading = false;
-  });
+    goodsData = widget.goods;
+    goodsList = widget.goodsDataList;
   }
 
   // 앱 바 위젯 생성 함수
@@ -60,19 +49,28 @@ class _DetailState extends State<Detail> {
       ),
     );
   }
+
   // 이미지 위젯 생성 함수
   Widget _makeimage() {
-     if (goodsData?.photoList == null || goodsData!.photoList.isEmpty) {
-    return Container(); // 사진이 없을 경우 표시할 위젯(현재는 빈 컨테이너)
-  }
-    String imageUrl = goodsData!.photoList.first;
+    if (goodsData?.photoList == null || goodsData!.photoList!.isEmpty) {
+      return Container(
+          width: double.infinity,
+          child: Image.asset(
+            'assets/images/empty.jpg',
+            width: 100,
+            height: 300,
+            fit: BoxFit.fill,
+          )); // 사진이 없을 경우 표시할 위젯(현재는 빈 컨테이너)
+    }
+    String imageUrl = goodsData!.photoList![0];
     return Container(
-    width: double.infinity, 
-    child: Image.network(
-      imageUrl,
-      fit: BoxFit.cover, 
-    ),
-  ); 
+        width: double.infinity,
+        child: Image.asset(
+          imageUrl,
+          width: 100,
+          height: 300,
+          fit: BoxFit.fill,
+        ));
   }
 
   // 매너 온도 등을 표시하는 위젯 생성 함수
@@ -184,7 +182,7 @@ class _DetailState extends State<Detail> {
 
   // 상품 내용 상세 정보를 표시하는 위젯 생성 함수
   Widget _contentDetail() {
-    if(goodsData == null)return Container(); // 데이터가 없는 경우
+    if (goodsData == null) return Container(); // 데이터가 없는 경우
     return Container(
         margin: const EdgeInsets.symmetric(horizontal: 15),
         child: Column(
@@ -206,12 +204,12 @@ class _DetailState extends State<Detail> {
             ),
             const SizedBox(height: 15),
             Text(
-              goodsData!.content,
+              goodsData!.content ?? '',
               style: TextStyle(fontSize: 15, height: 1.5),
             ),
             const SizedBox(height: 15),
             Text(
-              goodsData!.readCnt,
+              goodsData!.readCnt ?? '',
               style: TextStyle(
                 fontSize: 12,
                 color: Colors.grey,
@@ -274,18 +272,18 @@ class _DetailState extends State<Detail> {
             width: 1,
             color: Colors.grey.withOpacity(0.3),
           ),
-          const Column(
+          Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "100000원",
-                style: TextStyle(
+                goodsData!.price,
+                style: const TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              Text(
+              const Text(
                 "가격제안불가",
                 style: TextStyle(fontSize: 14, color: Colors.grey),
               )
@@ -314,8 +312,13 @@ class _DetailState extends State<Detail> {
                       // 해당 Text 클릭시 채팅 페이지로 이동
                       Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (context) => const ChatRoom(rname: '', uid1: '', uid2: '', rid: '', uid: '', name: '',
-                        
+                          builder: (context) => const ChatRoom(
+                            rname: '',
+                            uid1: '',
+                            uid2: '',
+                            rid: '',
+                            uid: '',
+                            name: '',
                           ),
                         ),
                       );
@@ -332,9 +335,10 @@ class _DetailState extends State<Detail> {
 
   // 메인 바디 위젯 생성 함수
   Widget _bodyWidget() {
-    if(isLoading){
-      return Center(child: CircularProgressIndicator());
-    }
+    // if (isLoading) {
+    //   return Center(child: CircularProgressIndicator());
+    // }
+
     return CustomScrollView(slivers: [
       SliverList(
         delegate: SliverChildListDelegate(
@@ -353,31 +357,60 @@ class _DetailState extends State<Detail> {
         sliver: SliverGrid(
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2, mainAxisSpacing: 10, crossAxisSpacing: 10),
-          delegate: SliverChildListDelegate(List.generate(20, (index) {
-            return Container(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child: Container(
-                      child: Image.asset("assets/images/sample2.jpg"),
-                      color: Colors.grey.withOpacity(0.3),
-                      height: 120,
+          delegate: SliverChildBuilderDelegate(
+            (BuildContext context, int index) {
+              // goodsDataList에서 각 아이템 가져오기
+              if (widget.goodsDataList == null ||
+                  index >= widget.goodsDataList.length) {
+                // goodsDataList가 null이거나 인덱스가 범위를 벗어날 경우 에러 방지
+                return Container();
+              }
+              Goods goods = widget.goodsDataList[index];
+
+              // if (goods.photoList == null || goods.photoList!.isEmpty) {
+              //   // photoList가 null이거나 비어 있을 경우 에러 방지
+              //   return Container();
+              // }
+
+              return Container(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: Container(
+                        color: Colors.grey.withOpacity(0.3),
+                        height: 120,
+                        child: goods.photoList != null &&
+                                goods.photoList!.isNotEmpty
+                            ? Image.asset(
+                                goods.photoList![0],
+                                width: 100,
+                                height: 100,
+                                fit: BoxFit.fill,
+                              )
+                            : Image.asset(
+                                'assets/images/empty.jpg',
+                                width: 100,
+                                height: 100,
+                                fit: BoxFit.fill,
+                              ),
+                      ),
                     ),
-                  ),
-                  const Text(
-                    "상품 제목",
-                    style: TextStyle(fontSize: 14),
-                  ),
-                  const Text(
-                    "금액",
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                  ),
-                ],
-              ),
-            );
-          }).toList()),
+                    Text(
+                      goods.title,
+                      style: TextStyle(fontSize: 14),
+                    ),
+                    Text(
+                      goods.price,
+                      style:
+                          TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
         ),
       ),
     ]);
@@ -391,5 +424,4 @@ class _DetailState extends State<Detail> {
         body: _bodyWidget(),
         bottomNavigationBar: _bottomBarWidget());
   }
-
 }

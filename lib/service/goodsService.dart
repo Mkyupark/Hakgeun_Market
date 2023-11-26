@@ -2,38 +2,37 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:hakgeun_market/models/goods.dart';
 
 class GoodsService {
+  final FirebaseFirestore _db = FirebaseFirestore.instance;
   static final GoodsService _goodsService = GoodsService._internal();
 
   factory GoodsService() => _goodsService;
 
   GoodsService._internal();
 
-  // Create
-  Future createNewGoods(Map<String, dynamic> json) async {
-    DocumentReference<Map<String, dynamic>> documentReference =
-        FirebaseFirestore.instance.collection("goods").doc();
-    final DocumentSnapshot<Map<String, dynamic>> documentSnapshot =
-        await documentReference.get();
-
-    if (!documentSnapshot.exists) {
-      await documentReference.set(json);
-    }
+  Future<void> CreateGoods(Goods goods) async {
+    await _db.collection('goods').doc().set(goods.toJson());
   }
 
   // // READ 각각의 데이터를 콕 집어서 가져올때
-  // Future<Goods> getGoodsModel(String searchTerm) async {
-  //   DocumentReference<Map<String, dynamic>> documentReference =
-  //       FirebaseFirestore.instance.collection("goods").doc();
-  //   final DocumentSnapshot<Map<String, dynamic>> documentSnapshot =
-  //       await documentReference.get();
-  //   Goods goods = Goods.fromSnapShot(documentSnapshot);
-  //   return goods;
-  // }
+  Future<Goods?> getGoodsFromUID(String goodsId) async {
+    try {
+      var snapshot = await _db.collection('goods').doc(goodsId).get();
+      if (snapshot.exists) {
+        return Goods.fromJson(snapshot);
+      } else {
+        return null; // 사용자를 찾을 수 없을 때 null을 반환합니다.
+      }
+    } catch (e) {
+      // 에러 처리
+      print('Error fetching user: $e');
+      return null;
+    }
+  }
 
   //READ 컬렉션 내 모든 데이터를 가져올때
   Future<List<Goods>> getGoodsModels({String searchGoods = ""}) async {
     CollectionReference<Map<String, dynamic>> collectionReference =
-        FirebaseFirestore.instance.collection("goods");
+        _db.collection("goods");
 
     // 전부 조회
     if (searchGoods == "") {
@@ -63,13 +62,14 @@ class GoodsService {
       return goods;
     }
   }
-// //Delete
-//   Future<void> delGoodsModel(DocumentReference reference) async {
-//     await reference.delete();
-//   }
 
-// //Update
-//   Future<void> updateGoodsModel(Map<String, dynamic> json,DocumentReference reference) async {
-//     await reference.set(json);
-//   }
+//Delete
+  Future<void> delGoodsModel(String goodsid) async {
+    await _db.collection('goods').doc(goodsid).delete();
+  }
+
+//Update
+  Future<void> updateGoodsModel(Goods goods) async {
+    await _db.collection('goods').doc(goods.id).update(goods.toJson());
+  }
 }
