@@ -4,7 +4,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hakgeun_market/models/user.dart';
 import 'package:hakgeun_market/pages/app.dart';
+import 'package:hakgeun_market/provider/user_provider.dart';
 import 'package:hakgeun_market/service/userService.dart';
+import 'package:provider/provider.dart';
 
 class RegistScreen extends StatefulWidget {
   final String phoneNumber;
@@ -32,7 +34,7 @@ class _RegistScreenState extends State<RegistScreen> {
 
       // UserService 인스턴스 생성
       final userService = UserService();
-
+      Provider.of<UserProvider>(context, listen: false).setUser(user);
       // Firestore에 사용자 정보 저장
       await userService.createUser(user);
 

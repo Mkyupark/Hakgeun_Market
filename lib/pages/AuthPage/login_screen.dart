@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:hakgeun_market/models/user.dart';
 import 'package:hakgeun_market/pages/AuthPage/regist_screen.dart';
 import 'package:hakgeun_market/pages/app.dart';
+import 'package:hakgeun_market/provider/navigation_provider.dart';
 import 'package:hakgeun_market/provider/user_provider.dart';
 import 'package:hakgeun_market/service/AuthService.dart';
 import 'package:hakgeun_market/service/userService.dart';
@@ -67,7 +68,10 @@ class _LoginScreenState extends State<LoginScreen> {
             // App 화면으로 이동
             // ignore: use_build_context_synchronously
             Navigator.pushReplacement(
-                context, MaterialPageRoute(builder: (context) => App()));
+              context,
+              MaterialPageRoute(
+                  builder: (context) => App()), // App()은 메인 스크린으로 돌아가는 라우트
+            );
           } else {
             // 가입되지 않은 사용자인 경우, RegistScreen으로 이동하며 휴대폰 번호 정보를 전달합니다.
             // ignore: use_build_context_synchronously

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:hakgeun_market/componenets/appbar.dart';
 import 'package:hakgeun_market/models/goods.dart';
+import 'package:hakgeun_market/pages/MyPage/profile_screen.dart';
 import 'package:hakgeun_market/pages/chatroom/chatlist.dart';
 import 'package:hakgeun_market/pages/home.dart';
 import 'package:hakgeun_market/provider/navigation_provider.dart';
@@ -31,7 +32,7 @@ class _AppState extends State<App> {
       case 2:
         return ChatList();
       case 3:
-        return Container();
+        return const ProfileScreen();
     }
     return Container();
   }
@@ -92,7 +93,6 @@ class _AppState extends State<App> {
   @override
   Widget build(BuildContext context) {
     _navigationBar = Provider.of<NavigationProvider>(context);
-
     return Scaffold(
       appBar: CustomAppBar(
         onSearchCallback: (searchTerm) {
