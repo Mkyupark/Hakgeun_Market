@@ -8,7 +8,7 @@ import 'package:intl/intl.dart';
 class Home extends StatefulWidget {
   final List<Goods> SearchData;
 
-  const Home({required this.SearchData});
+  const Home({super.key, required this.SearchData});
 
   @override
   State<Home> createState() => _HomeState();
@@ -35,7 +35,7 @@ class _HomeState extends State<Home> {
 
   Widget _bodyWidget() {
     if (widget.SearchData.isEmpty) {
-      return Center(
+      return const Center(
         child: Text(
           'No data available',
           style: TextStyle(fontStyle: FontStyle.italic),
@@ -51,7 +51,8 @@ class _HomeState extends State<Home> {
             onTap: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) => Detail(id: '${goods.id}',),
+                  builder: (context) =>
+                      Detail(goods: goods, goodsDataList: widget.SearchData),
                 ),
               );
             },
@@ -63,7 +64,7 @@ class _HomeState extends State<Home> {
                   ClipRRect(
                     borderRadius: const BorderRadius.all(Radius.circular(10)),
                     child: Hero(
-                      tag: goods.id !,
+                      tag: index,
                       child:
                           goods.photoList != null && goods.photoList!.isNotEmpty
                               ? Image.asset(
@@ -124,8 +125,8 @@ class _HomeState extends State<Home> {
                                 const SizedBox(
                                   width: 1,
                                 ),
-                                const Text(
-                                  '77',
+                                Text(
+                                  goods.readCnt ?? '0',
                                   style: TextStyle(fontSize: 14),
                                 ),
                                 SvgPicture.asset(
