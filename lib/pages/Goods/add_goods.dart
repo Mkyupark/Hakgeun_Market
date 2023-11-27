@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hakgeun_market/models/goods.dart';
 import 'package:hakgeun_market/pages/app.dart';
+import 'package:hakgeun_market/provider/user_provider.dart';
 import 'package:hakgeun_market/service/goodsService.dart';
 import 'package:hakgeun_market/service/userService.dart';
 
@@ -78,20 +79,14 @@ class _AddGoodsFormState extends State<AddGoodsForm> {
 
   void register() async {
     final goodsService = GoodsService();
+    final userService = UserService();
 
-    DocumentReference userReference =
-        FirebaseFirestore.instance.collection('users').doc(userId);
-
-    // if (user == null) {
-    //   debugPrint("유저 정보 없음 ${userReference}");
-    // } else {
-    //   debugPrint("유저 정보 있음 ${userReference}");
-    // }
-    // debugPrint(" 현재 시간: ${Timestamp.now()}");
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final user = userProvider.user;
 
     final goods = Goods(
         photoList: [],
-        user: userReference,
+        username: user!.nickName,
         title: _itemNameController.text,
         content: _itemDescriptionController.text,
         price: _priceController.text,
@@ -131,16 +126,13 @@ class _AddGoodsFormState extends State<AddGoodsForm> {
   // 유저 정보와 만든사람이 일치하는지 확인
   // 이 함수 detail에서 판별해서 넘겨줘야할듯
   // 어차피 상품이 일치하지않으면 수정 권한도 없기 때문에 delete버튼만 추가하면 될듯.
-  bool checkUserToGoods(Goods goods) {
-    DocumentReference? userReference = goods.user;
-    String path = userReference!.path;
-    String userData = path.substring(path.indexOf('/') + 1);
-
-    if (userData == userId)
-      return true;
-    else
-      return false;
-  }
+  // bool checkUserToGoods(Goods goods) {
+  //   String username = goods.username;
+  //   if (userData == userId)
+  //     return true;
+  //   else
+  //     return false;
+  // }
 
   @override
   Widget build(BuildContext context) {

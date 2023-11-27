@@ -21,7 +21,6 @@ class App extends StatefulWidget {
 class _AppState extends State<App> {
   late NavigationProvider _navigationBar;
   List<Goods>? searchData;
-  GoodsService goodsService = GoodsService();
 
   Widget _bodyWidget() {
     switch (_navigationBar.currentNavigationIndex) {

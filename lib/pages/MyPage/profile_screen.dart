@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:hakgeun_market/pages/AuthPage/login_screen.dart';
-import 'package:hakgeun_market/pages/AuthPage/main_screen.dart';
 import 'package:hakgeun_market/pages/AuthPage/regist_screen.dart';
 import 'package:hakgeun_market/provider/navigation_provider.dart';
 import 'package:hakgeun_market/provider/user_provider.dart';
