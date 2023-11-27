@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ChatRoom extends StatefulWidget {
-  const ChatRoom({Key? key, required this.rname, required this.uid1, required this.uid2, required String rid, required String uid, required String name});
+  const ChatRoom(
+      {Key? key, required this.rname, required this.uid1, required this.uid2});
 
   final String rname;
   final String uid1;
@@ -25,22 +26,21 @@ class _ChatRoomState extends State<ChatRoom> {
 
   @override
   void initState() {
-    
     super.initState();
 
     _scrollController = ScrollController();
-    messages = FirebaseFirestore.instance.collection('chatRooms').doc(rname).collection('messages');
+    messages = FirebaseFirestore.instance
+        .collection('chatRooms')
+        .doc(rname)
+        .collection('messages');
 
     // Load messages and scroll to the bottom when done
     messages.orderBy('timestamp').get().then((querySnapshot) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _scrollToBottom();
-      
-
       });
     });
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -62,9 +62,10 @@ class _ChatRoomState extends State<ChatRoom> {
                       child: CircularProgressIndicator(),
                     );
                   }
-                  
+
                   List<Map<String, dynamic>> chatMessages = snapshot.data!.docs
-                      .map((DocumentSnapshot<Map<String, dynamic>> document) => document.data()!)
+                      .map((DocumentSnapshot<Map<String, dynamic>> document) =>
+                          document.data()!)
                       .toList();
 
                   return ListView.builder(
@@ -74,48 +75,56 @@ class _ChatRoomState extends State<ChatRoom> {
                     itemBuilder: (context, index) {
                       final chat = chatMessages[index];
                       final isMyMessage = chat['uid'] == uid1;
-                    
+
                       return Padding(
                         padding: const EdgeInsets.symmetric(vertical: 4.0),
                         child: Row(
-                          mainAxisAlignment: isMyMessage ? MainAxisAlignment.end : MainAxisAlignment.start,
+                          mainAxisAlignment: isMyMessage
+                              ? MainAxisAlignment.end
+                              : MainAxisAlignment.start,
                           children: [
                             Container(
                               padding: const EdgeInsets.all(8.0),
                               decoration: BoxDecoration(
-                                color: isMyMessage ? Colors.green : Colors.blueGrey,
+                                color: isMyMessage
+                                    ? Colors.green
+                                    : Colors.blueGrey,
                                 borderRadius: BorderRadius.circular(8.0),
                               ),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-  chat['uid'],
-  style: const TextStyle(
-    fontWeight: FontWeight.bold,
-    color: Colors.white,
-  ),
-),
-const SizedBox(height: 4.0),
-Container(
-  constraints: BoxConstraints(
-    maxWidth: MediaQuery.of(context).size.width * 0.7, // Adjust the maximum width as needed
-  ),
-  child: Text(
-    chat['chatlog'],
-    style: const TextStyle(color: Colors.white),
-    softWrap: true, // Set softWrap to true for automatic text wrapping
-  ),
-),
-
-const SizedBox(height: 4.0),
-Text(
-  _formatTimestamp(chat['timestamp']),
-  style: const TextStyle(
-    fontSize: 10.0,
-    color: Colors.white70,
-  ),
-),
+                                    chat['uid'],
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4.0),
+                                  Container(
+                                    constraints: BoxConstraints(
+                                      maxWidth: MediaQuery.of(context)
+                                              .size
+                                              .width *
+                                          0.7, // Adjust the maximum width as needed
+                                    ),
+                                    child: Text(
+                                      chat['chatlog'],
+                                      style:
+                                          const TextStyle(color: Colors.white),
+                                      softWrap:
+                                          true, // Set softWrap to true for automatic text wrapping
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4.0),
+                                  Text(
+                                    _formatTimestamp(chat['timestamp']),
+                                    style: const TextStyle(
+                                      fontSize: 10.0,
+                                      color: Colors.white70,
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
@@ -138,7 +147,8 @@ Text(
             constraints: BoxConstraints(
               maxHeight: MediaQuery.of(context).size.height * 0.3,
             ),
-            margin: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
+            margin:
+                EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
             child: Row(
               children: [
                 Expanded(
@@ -199,7 +209,7 @@ Text(
   void _scrollToBottom() {
     _scrollController.animateTo(
       _scrollController.position.maxScrollExtent,
-      duration: const Duration(milliseconds:150),
+      duration: const Duration(milliseconds: 150),
       curve: Curves.easeOut,
     );
   }

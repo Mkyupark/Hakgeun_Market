@@ -14,28 +14,24 @@ class GoodsService {
   }
 
   // // READ 각각의 데이터를 콕 집어서 가져올때
-  Future<Goods?> getGoodsFromUID(String goodsId) async {
-    try {
-      var snapshot = await _db.collection('goods').doc(goodsId).get();
-      if (snapshot.exists) {
-        return Goods.fromJson(snapshot);
-      } else {
-        return null; // 사용자를 찾을 수 없을 때 null을 반환합니다.
-      }
-    } catch (e) {
-      // 에러 처리
-      print('Error fetching user: $e');
-      return null;
-    }
-  }
-
-  //READ 컬렉션 내 모든 데이터를 가져올때
-  Future<List<Goods>> getGoodsModels({String searchGoods = ""}) async {
+  // Future<Goods?> getGoodsFromUID(String goodsId) async {
+  //   try {
+  //     var snapshot = await _db.collection('goods').doc(goodsId).get();
+  //     if (snapshot.exists) {
+  //       return Goods.fromJson(snapshot);
+  //     } else {
+  //       return null; // 사용자를 찾을 수 없을 때 null을 반환합니다.
+  //     }
+  //   } catch (e) {
+  //     // 에러 처리
+  //     print('Error fetching user: $e');
+  //     return null;
+  //   }
+  // }
+  Future<List<Goods>> getGoodsModelsByCategory(String category) async {
     CollectionReference<Map<String, dynamic>> collectionReference =
         _db.collection("goods");
-
-    // 전부 조회
-    if (searchGoods == "") {
+    if (category == "전체") {
       QuerySnapshot<Map<String, dynamic>> querySnapshot =
           await collectionReference
               .orderBy('uploadTime', descending: true)
@@ -46,20 +42,79 @@ class GoodsService {
         goods.add(fireModel);
       }
       return goods;
-      // 검색하는게 있을 경우
-    } else {
-      QuerySnapshot<Map<String, dynamic>> querySnapshot =
-          await collectionReference
-              .where('title', isGreaterThanOrEqualTo: searchGoods)
-              .where('title', isLessThanOrEqualTo: '$searchGoods\uf8ff')
-              .orderBy('title')
-              .get();
-      List<Goods> goods = [];
-      for (var doc in querySnapshot.docs) {
-        Goods fireModel = Goods.fromQuerySnapshot(doc);
-        goods.add(fireModel);
+    }
+    QuerySnapshot<Map<String, dynamic>> querySnapshot =
+        await collectionReference.where('category', isEqualTo: category).get();
+    List<Goods> goods = [];
+    for (var doc in querySnapshot.docs) {
+      Goods fireModel = Goods.fromQuerySnapshot(doc);
+      goods.add(fireModel);
+    }
+    return goods;
+  }
+
+  //READ 컬렉션 내 모든 데이터를 가져올때
+  Future<List<Goods>> getGoodsModels(
+      {String searchGoods = "", String category = "전체"}) async {
+    CollectionReference<Map<String, dynamic>> collectionReference =
+        _db.collection("goods");
+
+    // 전부 조회
+    if (category == "전체") {
+      if (searchGoods == "") {
+        QuerySnapshot<Map<String, dynamic>> querySnapshot =
+            await collectionReference
+                .orderBy('uploadTime', descending: true)
+                .get();
+        List<Goods> goods = [];
+        for (var doc in querySnapshot.docs) {
+          Goods fireModel = Goods.fromQuerySnapshot(doc);
+          goods.add(fireModel);
+        }
+        return goods;
+        // 검색하는게 있을 경우
+      } else {
+        QuerySnapshot<Map<String, dynamic>> querySnapshot =
+            await collectionReference
+                .where('title', isGreaterThanOrEqualTo: searchGoods)
+                .where('title', isLessThanOrEqualTo: '$searchGoods\uf8ff')
+                .orderBy('title')
+                .get();
+        List<Goods> goods = [];
+        for (var doc in querySnapshot.docs) {
+          Goods fireModel = Goods.fromQuerySnapshot(doc);
+          goods.add(fireModel);
+        }
+        return goods;
       }
-      return goods;
+    } else {
+      if (searchGoods == "") {
+        QuerySnapshot<Map<String, dynamic>> querySnapshot =
+            await collectionReference
+                .where('category', isEqualTo: category)
+                .orderBy('uploadTime', descending: true)
+                .get();
+        List<Goods> goods = [];
+        for (var doc in querySnapshot.docs) {
+          Goods fireModel = Goods.fromQuerySnapshot(doc);
+          goods.add(fireModel);
+        }
+        return goods;
+        // 검색하는게 있을 경우
+      } else {
+        QuerySnapshot<Map<String, dynamic>> querySnapshot =
+            await collectionReference
+                .where('title', isGreaterThanOrEqualTo: searchGoods)
+                .where('title', isLessThanOrEqualTo: '$searchGoods\uf8ff')
+                .orderBy('title')
+                .get();
+        List<Goods> goods = [];
+        for (var doc in querySnapshot.docs) {
+          Goods fireModel = Goods.fromQuerySnapshot(doc);
+          goods.add(fireModel);
+        }
+        return goods;
+      }
     }
   }
 

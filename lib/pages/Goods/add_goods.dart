@@ -2,12 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hakgeun_market/models/goods.dart';
-import 'package:hakgeun_market/models/user.dart';
 import 'package:hakgeun_market/pages/app.dart';
-import 'package:hakgeun_market/provider/user_provider.dart';
 import 'package:hakgeun_market/service/goodsService.dart';
 import 'package:hakgeun_market/service/userService.dart';
-import 'dart:math' as math;
 
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';

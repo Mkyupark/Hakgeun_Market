@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:hakgeun_market/models/goods.dart';
-import 'package:hakgeun_market/pages/add_goods.dart';
+import 'package:hakgeun_market/pages/Goods/add_goods.dart';
 import 'package:hakgeun_market/pages/detail.dart';
 import 'package:intl/intl.dart';
 
