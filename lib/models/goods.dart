@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class Goods {
   String? id;
   List<String>? photoList;
-  DocumentReference? user;
+  String username;
   String title;
   String? content;
   String price;
@@ -16,7 +16,7 @@ class Goods {
 
   Goods(
       {required this.photoList,
-      required this.user,
+      required this.username,
       required this.title,
       required this.content,
       required this.price,
@@ -31,6 +31,7 @@ class Goods {
   Goods.fromJson(dynamic json)
       : id = json['id'],
         photoList = json['photoList'].cast<String>() ?? "",
+        username = json['username'],
         title = json['title'],
         content = json['content'],
         loc = json['location'],
@@ -44,7 +45,7 @@ class Goods {
   // firebase에 저장할 때
   Map<String, dynamic> toJson() => {
         'photoList': photoList,
-        'user': user,
+        'username': username,
         'title': title,
         'content': content,
         'price': price,
@@ -62,10 +63,9 @@ class Goods {
       : this.fromJson(snapshot.data());
 
   factory Goods.fromDocumentSnapshot(DocumentSnapshot doc) {
-    var data = doc.data() as Map<String, dynamic>;
     return Goods(
-        user: doc['user'],
         photoList: doc['photoList'].cast<String>(),
+        username: doc['username'],
         title: doc['title'],
         content: doc['content'],
         price: doc['price'], // 또는 json['price'].toInt() 등으로 수정

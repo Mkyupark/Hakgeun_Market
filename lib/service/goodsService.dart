@@ -117,7 +117,7 @@ class GoodsService {
       }
     }
   }
-
+  
 //Delete
   Future<void> delGoodsModel(String goodsid) async {
     await _db.collection('goods').doc(goodsid).delete();
