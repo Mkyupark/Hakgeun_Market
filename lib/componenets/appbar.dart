@@ -15,12 +15,111 @@ class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
 
 class _CustomAppBarState extends State<CustomAppBar> {
   final TextEditingController _searchController = TextEditingController();
+  late String selectedCategory = "전체";
+  final List<String> temp = ["전체", "가구", "의류", "전자기기", "주방용품", "기타"];
 
   @override
   void initState() {
     super.initState();
-    _performSearch(context, searchTerm: "");
+    _SearchAllGoodsModel(context, searchTerm: "", category: selectedCategory);
     // initState에서 필요한 초기화 코드 작성
+  }
+
+  void _showCategoryDialog(BuildContext context) async {
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("카테고리 선택"),
+          content: StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+              return DropdownButton<String>(
+                value: selectedCategory,
+                items: temp.map((String category) {
+                  return DropdownMenuItem<String>(
+                    value: category,
+                    child: Text(category),
+                  );
+                }).toList(),
+                onChanged: (String? newValue) {
+                  if (newValue != null) {
+                    setState(() {
+                      selectedCategory = newValue;
+                    });
+                  }
+                },
+              );
+            },
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                _SearchByCategory(context, selectedCategory);
+                _searchController.clear();
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: const Text("확인"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showSearchDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("상품 검색"),
+          content: TextField(
+            controller: _searchController,
+            decoration: const InputDecoration(
+              hintText: "상품 검색",
+            ),
+            onSubmitted: (value) {
+              _SearchAllGoodsModel(context,
+                  searchTerm: value, category: selectedCategory);
+              Navigator.of(context).pop();
+            },
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: const Text("취소"),
+            ),
+            TextButton(
+              onPressed: () {
+                // Perform search logic here
+                _SearchAllGoodsModel(context,
+                    searchTerm: _searchController.text,
+                    category: selectedCategory);
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: const Text("검색"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _SearchByCategory(BuildContext context, String category) async {
+    final GoodsService goodsService = GoodsService();
+    List<Goods> goods = await goodsService.getGoodsModelsByCategory(category);
+    widget.onSearchCallback(goods);
+  }
+
+  void _SearchAllGoodsModel(BuildContext context,
+      {String searchTerm = "", String category = "전체"}) async {
+    final GoodsService goodsService = GoodsService();
+    List<Goods> goods = await goodsService.getGoodsModels(
+        searchGoods: searchTerm, category: category);
+
+    // 검색 결과를 콜백으로 전달
+    widget.onSearchCallback(goods);
   }
 
   @override
@@ -41,61 +140,17 @@ class _CustomAppBarState extends State<CustomAppBar> {
         ),
         IconButton(
           icon: Icon(Icons.menu),
-          onPressed: () {},
+          onPressed: () {
+            _showCategoryDialog(context);
+          },
           color: Colors.white,
         ),
-        IconButton(
-          icon: Icon(Icons.notifications),
-          onPressed: () {},
-          color: Colors.white,
-        ),
+        // IconButton(
+        //   icon: Icon(Icons.notifications),
+        //   onPressed: () {},
+        //   color: Colors.white,
+        // ),
       ],
     );
-  }
-
-  void _showSearchDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("상품 검색"),
-          content: TextField(
-            controller: _searchController,
-            decoration: const InputDecoration(
-              hintText: "상품 검색",
-            ),
-            onSubmitted: (value) {
-              _performSearch(context, searchTerm: value);
-              Navigator.of(context).pop();
-            },
-          ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-              },
-              child: const Text("취소"),
-            ),
-            TextButton(
-              onPressed: () {
-                // Perform search logic here
-                _performSearch(context, searchTerm: _searchController.text);
-                Navigator.of(context).pop(); // Close the dialog
-              },
-              child: const Text("검색"),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _performSearch(BuildContext context, {String searchTerm = ""}) async {
-    final GoodsService goodsService = GoodsService();
-    List<Goods> goods =
-        await goodsService.getGoodsModels(searchGoods: searchTerm);
-
-    // 검색 결과를 콜백으로 전달
-    widget.onSearchCallback(goods);
   }
 }

@@ -16,7 +16,6 @@ class _ChatListState extends State<ChatList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      
       body: StreamBuilder(
         stream: FirebaseFirestore.instance.collection('chatRooms').snapshots(),
         builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -39,32 +38,34 @@ class _ChatListState extends State<ChatList> {
               String rname = rooms[index]['rname'];
               String uid1 = rooms[index]['uid1'];
               String uid2 = rooms[index]['uid2'];
-              
+
               if (currentUser != null && rname.contains(currentUser.nickName)) {
                 if (uid1 == currentUser.nickName) {
                   return ListTile(
                     title: Text('대화 상대: $uid2'),
-                 
                     onTap: () {
                       // TODO: 채팅방 클릭 시 동작 정의
-                     Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => Container()
-                  ),);
-                  },
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => Container()),
+                      );
+                    },
                   );
                 } else {
                   return ListTile(
                     title: Text('대화 상대: $uid1'),
-                    
                     onTap: () {
                       // TODO: 채팅방 클릭 시 동작 정의
-                           Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => Container(),),);
-              
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ChatRoom(
+                            rname: rooms[index]['rname'],
+                            uid1: rooms[index]['uid2'],
+                            uid2: rooms[index]['uid1'],
+                          ),
+                        ),
+                      );
                     },
                   );
                 }

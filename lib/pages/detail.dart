@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:hakgeun_market/models/goods.dart';
+import 'package:hakgeun_market/pages/Goods/home.dart';
+import 'package:hakgeun_market/pages/app.dart';
 import 'package:hakgeun_market/service/goodsService.dart';
 import 'package:hakgeun_market/pages/chatroom/chatroom.dart';
 
@@ -19,7 +21,7 @@ class Detail extends StatefulWidget {
 
 class _DetailState extends State<Detail> {
   late Goods? goodsData;
-  late List<Goods>? goodsList;
+  late List<Goods> goodsList;
   var isLoading = true;
 
   @override
@@ -222,31 +224,42 @@ class _DetailState extends State<Detail> {
 
   // 판매자의 다른 상품 정보를 표시하는 섹션 생성 함수
   Widget _otherCellContents() {
-    return const Padding(
+    return Padding(
       padding: EdgeInsets.all(15),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                "판매자님의 판매 상품",
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
+      child: GestureDetector(
+        onTap: () {
+          // "모두보기" 버튼을 눌렀을 때 AllProductsPage로 이동
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+                // builder: (context) => Home(SearchData: goodsList)),
+                builder: (context) => App()),
+          );
+        },
+        child: const Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "판매자님의 판매 상품",
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-              Text(
-                "모두보기",
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey,
-                  fontWeight: FontWeight.bold,
+                Text(
+                  "모두보기",
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ],
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -310,18 +323,18 @@ class _DetailState extends State<Detail> {
                     ),
                     onTap: () {
                       // 해당 Text 클릭시 채팅 페이지로 이동
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => const ChatRoom(
-                            rname: '',
-                            uid1: '',
-                            uid2: '',
-                            rid: '',
-                            uid: '',
-                            name: '',
-                          ),
-                        ),
-                      );
+                      // Navigator.of(context).push(
+                      //   MaterialPageRoute(
+                      //     builder: (context) => const ChatRoom(
+                      //       rname: '',
+                      //       uid1: '',
+                      //       uid2: '',
+                      //       rid: '',
+                      //       uid: '',
+                      //       name: '',
+                      //     ),
+                      //   ),
+                      // );
                     },
                   ),
                 ),

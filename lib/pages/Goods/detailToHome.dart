@@ -1,32 +1,37 @@
-// import 'package:app/pages/my_carrot.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:hakgeun_market/componenets/appbar.dart';
 import 'package:hakgeun_market/models/goods.dart';
+import 'package:hakgeun_market/pages/Goods/home.dart';
 import 'package:hakgeun_market/pages/MyPage/profile_screen.dart';
 import 'package:hakgeun_market/pages/chatroom/chatlist.dart';
-import 'package:hakgeun_market/pages/Goods/home.dart';
 import 'package:hakgeun_market/provider/navigation_provider.dart';
-import 'package:hakgeun_market/service/goodsService.dart';
 import 'package:provider/provider.dart';
 
-// react -> Router 와 같은 개념, 페이지 이동을 위함 (Navigation)
-class App extends StatefulWidget {
-  App({Key? key}) : super(key: key);
+class DetailToHome extends StatefulWidget {
+  final List<Goods> SearchData;
+
+  const DetailToHome({super.key, required this.SearchData});
 
   @override
-  State<App> createState() => _AppState();
+  State<DetailToHome> createState() => _DetailToHomeState();
 }
 
-class _AppState extends State<App> {
+class _DetailToHomeState extends State<DetailToHome> {
   late NavigationProvider _navigationBar;
-  List<Goods>? searchData;
-  GoodsService goodsService = GoodsService();
+  late List<Goods> goodsList;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    goodsList = widget.SearchData;
+  }
 
   Widget _bodyWidget() {
     switch (_navigationBar.currentNavigationIndex) {
       case 0:
-        return Home(SearchData: searchData ?? []);
+        return Home(SearchData: goodsList);
       case 1:
         return Container();
       case 2:
@@ -97,11 +102,13 @@ class _AppState extends State<App> {
       appBar: CustomAppBar(
         onSearchCallback: (searchTerm) {
           setState(() {
-            searchData = searchTerm; // searchData 업데이트
+            goodsList = searchTerm; // searchData 업데이트
           });
         },
       ),
-      body: _bodyWidget(),
+      body: Home(
+        SearchData: widget.SearchData,
+      ),
       bottomNavigationBar: _bottomNavigationBarWidget(),
     );
   }
