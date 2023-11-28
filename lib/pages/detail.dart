@@ -1,9 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:hakgeun_market/models/goods.dart';
+import 'package:hakgeun_market/models/user.dart';
 import 'package:hakgeun_market/pages/Goods/home.dart';
 import 'package:hakgeun_market/pages/app.dart';
+import 'package:hakgeun_market/provider/user_provider.dart';
 import 'package:hakgeun_market/service/goodsService.dart';
 import 'package:hakgeun_market/pages/chatroom/chatroom.dart';
 
@@ -22,7 +25,55 @@ class Detail extends StatefulWidget {
 class _DetailState extends State<Detail> {
   late Goods? goodsData;
   late List<Goods> goodsList;
+  final UserProvider _userProvider = UserProvider();
   var isLoading = true;
+// 채팅방 이름 생성을 도와주는 함수
+String _generateChatRoomName(String nickName1, String nickName2) {
+  // 닉네임을 알파벳 순으로 정렬하여 일관된 순서를 보장합니다.
+  List<String> nicknames = [nickName1, nickName2];
+ 
+  return "${nicknames[0]}_${nicknames[1]}";
+}
+
+// 채팅방이 이미 존재하는지 확인하는 함수
+Future<bool> _checkIfChatRoomExists(String chatRoomName) async {
+  try {
+    // Firestore에서 chatRooms 컬렉션의 해당 문서를 가져옵니다.
+    DocumentSnapshot snapshot =
+        await FirebaseFirestore.instance.collection('chatRooms').doc(chatRoomName).get();
+
+    // 문서가 존재하면 true를 반환합니다.
+    return snapshot.exists;
+  } catch (e) {
+    // 에러가 발생하면 false를 반환합니다.
+    print("채팅방 확인 중 오류 발생: $e");
+    return false;
+  }
+}
+
+// 채팅방을 생성하는 함수
+Future<void> _createChatRoom(String chatRoomName, String rname, String uid1, String uid2) async {
+  try {
+    // Firestore에서 chatRooms 컬렉션에 새 문서를 생성합니다.
+    DocumentReference chatRoomRef = FirebaseFirestore.instance.collection('chatRooms').doc(chatRoomName);
+
+    // 채팅방 정보를 추가합니다.
+    await chatRoomRef.set({
+      'rname': rname,
+      'uid1': uid1,
+      'uid2': uid2,
+    });
+
+    // "messages" 서브컬렉션을 추가합니다.
+    await chatRoomRef.collection('messages').add({
+  
+      
+    });
+  } catch (e) {
+    print('Error creating chat room: $e');
+    // Handle the error appropriately
+  }
+}
 
   @override
   void initState() {
@@ -199,7 +250,7 @@ class _DetailState extends State<Detail> {
             ),
             Text(
               goodsData!.category,
-              style: TextStyle(
+              style: const TextStyle(
                 color: Colors.grey,
                 fontSize: 12,
               ),
@@ -207,12 +258,12 @@ class _DetailState extends State<Detail> {
             const SizedBox(height: 15),
             Text(
               goodsData!.content ?? '',
-              style: TextStyle(fontSize: 15, height: 1.5),
+              style: const TextStyle(fontSize: 15, height: 1.5),
             ),
             const SizedBox(height: 15),
             Text(
               goodsData!.readCnt ?? '',
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 12,
                 color: Colors.grey,
               ),
@@ -225,7 +276,7 @@ class _DetailState extends State<Detail> {
   // 판매자의 다른 상품 정보를 표시하는 섹션 생성 함수
   Widget _otherCellContents() {
     return Padding(
-      padding: EdgeInsets.all(15),
+      padding: const EdgeInsets.all(15),
       child: GestureDetector(
         onTap: () {
           // "모두보기" 버튼을 눌렀을 때 AllProductsPage로 이동
@@ -266,6 +317,8 @@ class _DetailState extends State<Detail> {
 
   // 하단 바 생성 함수
   Widget _bottomBarWidget() {
+    UserModel? currentUser = _userProvider.user;
+
     return Container(
       width: 50,
       padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -303,44 +356,51 @@ class _DetailState extends State<Detail> {
             ],
           ),
           Expanded(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 7),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(5),
-                    color: Colors.green,
-                  ),
-                  child: GestureDetector(
-                    child: const Text(
-                      "채팅으로 거래하기",
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          fontSize: 16),
+  child: Row(
+    mainAxisAlignment: MainAxisAlignment.end,
+    children: [
+      Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 7),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(5),
+          color: goodsData!.username == currentUser!.nickName
+              ? Colors.grey // Change the color to grey if usernames match
+              : Colors.green, // Use green otherwise
+        ),
+        child: GestureDetector(
+          onTap: goodsData!.username == currentUser.nickName
+              ? null // Disable onTap if usernames match
+              : () async {
+                  // Your existing onTap logic here
+                  String chatRoomName = _generateChatRoomName(goodsData!.username, currentUser!.nickName);
+                  bool roomExists = await _checkIfChatRoomExists(chatRoomName);
+                  if (!roomExists) {
+                    await _createChatRoom(chatRoomName, chatRoomName, goodsData!.username, currentUser.nickName);
+                  }
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => ChatRoom(
+                        rname: chatRoomName,
+                        uid2: goodsData!.username,
+                        uid1: currentUser.nickName,
+                      ),
                     ),
-                    onTap: () {
-                      // 해당 Text 클릭시 채팅 페이지로 이동
-                      // Navigator.of(context).push(
-                      //   MaterialPageRoute(
-                      //     builder: (context) => const ChatRoom(
-                      //       rname: '',
-                      //       uid1: '',
-                      //       uid2: '',
-                      //       rid: '',
-                      //       uid: '',
-                      //       name: '',
-                      //     ),
-                      //   ),
-                      // );
-                    },
-                  ),
-                ),
-              ],
+                  );
+                },
+          child: const Text(
+            "채팅으로 거래하기",
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              fontSize: 16,
             ),
-          )
+          ),
+        ),
+      ),
+    ],
+  ),
+),
+
         ],
       ),
     );
@@ -412,12 +472,12 @@ class _DetailState extends State<Detail> {
                     ),
                     Text(
                       goods.title,
-                      style: TextStyle(fontSize: 14),
+                      style: const TextStyle(fontSize: 14),
                     ),
                     Text(
                       goods.price,
                       style:
-                          TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                          const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
@@ -437,4 +497,4 @@ class _DetailState extends State<Detail> {
         body: _bodyWidget(),
         bottomNavigationBar: _bottomBarWidget());
   }
-}
+} 
