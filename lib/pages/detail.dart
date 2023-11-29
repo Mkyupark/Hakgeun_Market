@@ -196,40 +196,39 @@ class _DetailState extends State<Detail> {
   Widget _sellerSimpleInfo() {
     return Padding(
       padding: const EdgeInsets.all(15.0),
-        child: Row(
-          children: [
-            Expanded(
-            child: Stack(
-              children: [
-                Positioned(
+      child: Row(
+        children: [
+          Expanded(
+              child: Stack(
+            children: [
+              Positioned(
                   child: Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 25,
-                      backgroundImage:
-                          Image.asset("assets/images/user.png").image,
-                    ),
-                    const SizedBox(width: 10),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          goodsData!.username,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
+                children: [
+                  CircleAvatar(
+                    radius: 25,
+                    backgroundImage:
+                        Image.asset("assets/images/user.png").image,
+                  ),
+                  const SizedBox(width: 10),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        goodsData!.username,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
                         ),
-                      ],
-                    ),
-                  ],
-                )),
-                Positioned(right: 0, child: _tempset())
-              ],
-            )
-            ),
-          ],
-        ),
+                      ),
+                    ],
+                  ),
+                ],
+              )),
+              Positioned(right: 0, child: _tempset())
+            ],
+          )),
+        ],
+      ),
     );
   }
 
@@ -337,12 +336,39 @@ class _DetailState extends State<Detail> {
         children: [
           GestureDetector(
             onTap: () {
-              setState(() {
-                isHeartOn = !isHeartOn;
-              });
+              if (isHeartOn == false) {
+                setState(() {
+                  isHeartOn = !isHeartOn;
+                });
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: Text("관심목록에 등록되었습니다."),
+                  duration: Duration(seconds: 2),
+                  action: SnackBarAction(
+                    label: '취소',
+                    onPressed: () {
+                      setState(() {
+                        isHeartOn = !isHeartOn;
+                      });
+                    }, //버튼 눌렀을때.
+                  ),
+                ));
+              } 
+              else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text("관심목록에서 해제했습니다."),
+                    duration: Duration(seconds: 3),
+                  ),
+                );
+                setState(() {
+                  isHeartOn = !isHeartOn;
+                });
+              }
             },
             child: SvgPicture.asset(
-              isHeartOn ? "assets/svg/heart_on.svg" : "assets/svg/heart_off.svg",
+              isHeartOn
+                  ? "assets/svg/heart_on.svg"
+                  : "assets/svg/heart_off.svg",
               width: 20,
               height: 20,
               color: Colors.green,
@@ -359,7 +385,7 @@ class _DetailState extends State<Detail> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                goodsData!.price,
+                "${goodsData!.price}원",
                 style: const TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.bold,
@@ -517,5 +543,4 @@ class _DetailState extends State<Detail> {
         body: _bodyWidget(),
         bottomNavigationBar: _bottomBarWidget());
   }
-  
 }
