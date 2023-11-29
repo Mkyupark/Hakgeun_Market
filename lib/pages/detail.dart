@@ -4,7 +4,6 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:hakgeun_market/models/goods.dart';
 import 'package:hakgeun_market/models/user.dart';
-import 'package:hakgeun_market/pages/Goods/home.dart';
 import 'package:hakgeun_market/pages/app.dart';
 import 'package:hakgeun_market/provider/user_provider.dart';
 import 'package:hakgeun_market/service/goodsService.dart';
@@ -27,53 +26,56 @@ class _DetailState extends State<Detail> {
   late List<Goods> goodsList;
   final UserProvider _userProvider = UserProvider();
   var isLoading = true;
+  bool isHeartOn = false;
+
 // 채팅방 이름 생성을 도와주는 함수
-String _generateChatRoomName(String nickName1, String nickName2) {
-  // 닉네임을 알파벳 순으로 정렬하여 일관된 순서를 보장합니다.
-  List<String> nicknames = [nickName1, nickName2];
- 
-  return "${nicknames[0]}_${nicknames[1]}";
-}
+  String _generateChatRoomName(String nickName1, String nickName2) {
+    // 닉네임을 알파벳 순으로 정렬하여 일관된 순서를 보장합니다.
+    List<String> nicknames = [nickName1, nickName2];
+
+    return "${nicknames[0]}_${nicknames[1]}";
+  }
 
 // 채팅방이 이미 존재하는지 확인하는 함수
-Future<bool> _checkIfChatRoomExists(String chatRoomName) async {
-  try {
-    // Firestore에서 chatRooms 컬렉션의 해당 문서를 가져옵니다.
-    DocumentSnapshot snapshot =
-        await FirebaseFirestore.instance.collection('chatRooms').doc(chatRoomName).get();
+  Future<bool> _checkIfChatRoomExists(String chatRoomName) async {
+    try {
+      // Firestore에서 chatRooms 컬렉션의 해당 문서를 가져옵니다.
+      DocumentSnapshot snapshot = await FirebaseFirestore.instance
+          .collection('chatRooms')
+          .doc(chatRoomName)
+          .get();
 
-    // 문서가 존재하면 true를 반환합니다.
-    return snapshot.exists;
-  } catch (e) {
-    // 에러가 발생하면 false를 반환합니다.
-    print("채팅방 확인 중 오류 발생: $e");
-    return false;
+      // 문서가 존재하면 true를 반환합니다.
+      return snapshot.exists;
+    } catch (e) {
+      // 에러가 발생하면 false를 반환합니다.
+      print("채팅방 확인 중 오류 발생: $e");
+      return false;
+    }
   }
-}
 
 // 채팅방을 생성하는 함수
-Future<void> _createChatRoom(String chatRoomName, String rname, String uid1, String uid2) async {
-  try {
-    // Firestore에서 chatRooms 컬렉션에 새 문서를 생성합니다.
-    DocumentReference chatRoomRef = FirebaseFirestore.instance.collection('chatRooms').doc(chatRoomName);
+  Future<void> _createChatRoom(
+      String chatRoomName, String rname, String uid1, String uid2) async {
+    try {
+      // Firestore에서 chatRooms 컬렉션에 새 문서를 생성합니다.
+      DocumentReference chatRoomRef =
+          FirebaseFirestore.instance.collection('chatRooms').doc(chatRoomName);
 
-    // 채팅방 정보를 추가합니다.
-    await chatRoomRef.set({
-      'rname': rname,
-      'uid1': uid1,
-      'uid2': uid2,
-    });
+      // 채팅방 정보를 추가합니다.
+      await chatRoomRef.set({
+        'rname': rname,
+        'uid1': uid1,
+        'uid2': uid2,
+      });
 
-    // "messages" 서브컬렉션을 추가합니다.
-    await chatRoomRef.collection('messages').add({
-  
-      
-    });
-  } catch (e) {
-    print('Error creating chat room: $e');
-    // Handle the error appropriately
+      // "messages" 서브컬렉션을 추가합니다.
+      await chatRoomRef.collection('messages').add({});
+    } catch (e) {
+      print('Error creating chat room: $e');
+      // Handle the error appropriately
+    }
   }
-}
 
   @override
   void initState() {
@@ -113,7 +115,7 @@ Future<void> _createChatRoom(String chatRoomName, String rname, String uid1, Str
             width: 100,
             height: 300,
             fit: BoxFit.fill,
-          )); // 사진이 없을 경우 표시할 위젯(현재는 빈 컨테이너)
+          ));
     }
     String imageUrl = goodsData!.photoList![0];
     return Container(
@@ -194,32 +196,45 @@ Future<void> _createChatRoom(String chatRoomName, String rname, String uid1, Str
   Widget _sellerSimpleInfo() {
     return Padding(
       padding: const EdgeInsets.all(15.0),
-      child: SingleChildScrollView(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            CircleAvatar(
-              radius: 25,
-              backgroundImage: Image.asset("assets/images/user.png").image,
-            ),
-            const SizedBox(width: 10),
-            const Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "양준석",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
+      child: Row(
+        children: [
+          Expanded(
+              child: Stack(
+            children: [
+              Positioned(
+                  child: Row(
+                children: [
+                  CircleAvatar(
+                    radius: 25,
+                    backgroundImage:
+                        Image.asset("assets/images/user.png").image,
                   ),
-                ),
-                Text("디지털관 1층"),
-              ],
-            ),
-            const SizedBox(width: 150),
-            Expanded(child: _tempset())
-          ],
-        ),
+                  const SizedBox(width: 10),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        goodsData!.username,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      Text(
+                        goodsData!.loc ?? "",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              )),
+              Positioned(right: 0, child: _tempset())
+            ],
+          )),
+        ],
       ),
     );
   }
@@ -241,6 +256,7 @@ Future<void> _createChatRoom(String chatRoomName, String rname, String uid1, Str
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            const SizedBox(height: 15),
             Text(
               goodsData!.title,
               style: const TextStyle(
@@ -261,12 +277,25 @@ Future<void> _createChatRoom(String chatRoomName, String rname, String uid1, Str
               style: const TextStyle(fontSize: 15, height: 1.5),
             ),
             const SizedBox(height: 15),
-            Text(
-              goodsData!.readCnt ?? '',
-              style: const TextStyle(
-                fontSize: 12,
-                color: Colors.grey,
-              ),
+            Row(
+              children: [
+                Text(
+                  "관심 ${goodsData!.likeCnt} ·",
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey,
+                  ),
+                ),
+                Text(
+                  " 조회 ${goodsData!.readCnt}",
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey,
+                  ),
+                ),
+                const SizedBox(width: 5),
+                
+              ],
             ),
             const SizedBox(height: 15),
           ],
@@ -302,7 +331,7 @@ Future<void> _createChatRoom(String chatRoomName, String rname, String uid1, Str
                 Text(
                   "모두보기",
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 13,
                     color: Colors.grey,
                     fontWeight: FontWeight.bold,
                   ),
@@ -326,11 +355,44 @@ Future<void> _createChatRoom(String chatRoomName, String rname, String uid1, Str
       color: Colors.white,
       child: Row(
         children: [
-          SvgPicture.asset(
-            "assets/svg/heart_off.svg",
-            width: 20,
-            height: 20,
-            color: Colors.green,
+          GestureDetector(
+            onTap: () {
+              if (isHeartOn == false) {
+                setState(() {
+                  isHeartOn = !isHeartOn;
+                });
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: const Text("관심목록에 등록되었습니다."),
+                  duration: const Duration(seconds: 2),
+                  action: SnackBarAction(
+                    label: '취소',
+                    onPressed: () {
+                      setState(() {
+                        isHeartOn = !isHeartOn;
+                      });
+                    }, //버튼 눌렀을때.
+                  ),
+                ));
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text("관심목록에서 해제했습니다."),
+                    duration: Duration(seconds: 3),
+                  ),
+                );
+                setState(() {
+                  isHeartOn = !isHeartOn;
+                });
+              }
+            },
+            child: SvgPicture.asset(
+              isHeartOn
+                  ? "assets/svg/heart_on.svg"
+                  : "assets/svg/heart_off.svg",
+              width: 20,
+              height: 20,
+              color: Colors.green,
+            ),
           ),
           Container(
             margin: const EdgeInsets.only(left: 15, right: 10),
@@ -343,7 +405,7 @@ Future<void> _createChatRoom(String chatRoomName, String rname, String uid1, Str
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                goodsData!.price,
+                "${goodsData!.price}원",
                 style: const TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.bold,
@@ -356,51 +418,55 @@ Future<void> _createChatRoom(String chatRoomName, String rname, String uid1, Str
             ],
           ),
           Expanded(
-  child: Row(
-    mainAxisAlignment: MainAxisAlignment.end,
-    children: [
-      Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 7),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(5),
-          color: goodsData!.username == currentUser!.nickName
-              ? Colors.grey // Change the color to grey if usernames match
-              : Colors.green, // Use green otherwise
-        ),
-        child: GestureDetector(
-          onTap: goodsData!.username == currentUser.nickName
-              ? null // Disable onTap if usernames match
-              : () async {
-                  // Your existing onTap logic here
-                  String chatRoomName = _generateChatRoomName(goodsData!.username, currentUser!.nickName);
-                  bool roomExists = await _checkIfChatRoomExists(chatRoomName);
-                  if (!roomExists) {
-                    await _createChatRoom(chatRoomName, chatRoomName, goodsData!.username, currentUser.nickName);
-                  }
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => ChatRoom(
-                        rname: chatRoomName,
-                        uid2: goodsData!.username,
-                        uid1: currentUser.nickName,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 7),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(5),
+                    color: goodsData!.username == currentUser!.nickName
+                        ? Colors
+                            .grey // Change the color to grey if usernames match
+                        : Colors.green, // Use green otherwise
+                  ),
+                  child: GestureDetector(
+                    onTap: goodsData!.username == currentUser.nickName
+                        ? null // Disable onTap if usernames match
+                        : () async {
+                            // Your existing onTap logic here
+                            String chatRoomName = _generateChatRoomName(
+                                goodsData!.username, currentUser!.nickName);
+                            bool roomExists =
+                                await _checkIfChatRoomExists(chatRoomName);
+                            if (!roomExists) {
+                              await _createChatRoom(chatRoomName, chatRoomName,
+                                  goodsData!.username, currentUser.nickName);
+                            }
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => ChatRoom(
+                                  rname: chatRoomName,
+                                  uid2: goodsData!.username,
+                                  uid1: currentUser.nickName,
+                                ),
+                              ),
+                            );
+                          },
+                    child: const Text(
+                      "채팅으로 거래하기",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        fontSize: 16,
                       ),
                     ),
-                  );
-                },
-          child: const Text(
-            "채팅으로 거래하기",
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-              fontSize: 16,
+                  ),
+                ),
+              ],
             ),
           ),
-        ),
-      ),
-    ],
-  ),
-),
-
         ],
       ),
     );
@@ -445,44 +511,56 @@ Future<void> _createChatRoom(String chatRoomName, String rname, String uid1, Str
               //   return Container();
               // }
 
-              return Container(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(10),
-                      child: Container(
-                        color: Colors.grey.withOpacity(0.3),
-                        height: 120,
-                        child: goods.photoList != null &&
-                                goods.photoList!.isNotEmpty
-                            ? Image.asset(
-                                goods.photoList![0],
-                                width: 100,
-                                height: 100,
-                                fit: BoxFit.fill,
-                              )
-                            : Image.asset(
-                                'assets/images/empty.jpg',
-                                width: 100,
-                                height: 100,
-                                fit: BoxFit.fill,
-                              ),
+              return InkWell(
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => Detail(
+                              goods: goods,
+                              goodsDataList: widget.goodsDataList)));
+                },
+                child: Container(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Container(
+                          color: Colors.grey.withOpacity(0.3),
+                          height: 120,
+                          child: goods.photoList != null &&
+                                  goods.photoList!.isNotEmpty
+                              ? Image.asset(
+                                  goods.photoList![0],
+                                  width: 100,
+                                  height: 100,
+                                  fit: BoxFit.fill,
+                                )
+                              : Image.asset(
+                                  'assets/images/empty.jpg',
+                                  width: 100,
+                                  height: 100,
+                                  fit: BoxFit.fill,
+                                ),
+                        ),
                       ),
-                    ),
-                    Text(
-                      goods.title,
-                      style: const TextStyle(fontSize: 14),
-                    ),
-                    Text(
-                      goods.price,
-                      style:
-                          const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                    ),
-                  ],
+                      const SizedBox(height: 7),
+                      Text(
+                        goods.title,
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                      Text(
+                        "${goods.price}원",
+                        style: const TextStyle(
+                            fontSize: 14, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
                 ),
               );
             },
+            childCount: widget.goodsDataList?.length ?? 0,
           ),
         ),
       ),
@@ -497,4 +575,4 @@ Future<void> _createChatRoom(String chatRoomName, String rname, String uid1, Str
         body: _bodyWidget(),
         bottomNavigationBar: _bottomBarWidget());
   }
-} 
+}
