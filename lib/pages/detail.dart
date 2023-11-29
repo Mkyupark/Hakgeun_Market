@@ -220,6 +220,13 @@ class _DetailState extends State<Detail> {
                           fontSize: 16,
                         ),
                       ),
+                      Text(
+                        goodsData!.loc ?? "",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
                     ],
                   ),
                 ],
@@ -249,6 +256,7 @@ class _DetailState extends State<Detail> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            const SizedBox(height: 15),
             Text(
               goodsData!.title,
               style: const TextStyle(
@@ -269,12 +277,25 @@ class _DetailState extends State<Detail> {
               style: const TextStyle(fontSize: 15, height: 1.5),
             ),
             const SizedBox(height: 15),
-            Text(
-              goodsData!.readCnt ?? '',
-              style: const TextStyle(
-                fontSize: 12,
-                color: Colors.grey,
-              ),
+            Row(
+              children: [
+                Text(
+                  "관심 ${goodsData!.likeCnt} ·",
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey,
+                  ),
+                ),
+                Text(
+                  " 조회 ${goodsData!.readCnt}",
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey,
+                  ),
+                ),
+                const SizedBox(width: 5),
+                
+              ],
             ),
             const SizedBox(height: 15),
           ],
@@ -310,7 +331,7 @@ class _DetailState extends State<Detail> {
                 Text(
                   "모두보기",
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 13,
                     color: Colors.grey,
                     fontWeight: FontWeight.bold,
                   ),
@@ -341,8 +362,8 @@ class _DetailState extends State<Detail> {
                   isHeartOn = !isHeartOn;
                 });
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                  content: Text("관심목록에 등록되었습니다."),
-                  duration: Duration(seconds: 2),
+                  content: const Text("관심목록에 등록되었습니다."),
+                  duration: const Duration(seconds: 2),
                   action: SnackBarAction(
                     label: '취소',
                     onPressed: () {
@@ -352,10 +373,9 @@ class _DetailState extends State<Detail> {
                     }, //버튼 눌렀을때.
                   ),
                 ));
-              } 
-              else {
+              } else {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
+                  const SnackBar(
                     content: Text("관심목록에서 해제했습니다."),
                     duration: Duration(seconds: 3),
                   ),
@@ -491,44 +511,56 @@ class _DetailState extends State<Detail> {
               //   return Container();
               // }
 
-              return Container(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(10),
-                      child: Container(
-                        color: Colors.grey.withOpacity(0.3),
-                        height: 120,
-                        child: goods.photoList != null &&
-                                goods.photoList!.isNotEmpty
-                            ? Image.asset(
-                                goods.photoList![0],
-                                width: 100,
-                                height: 100,
-                                fit: BoxFit.fill,
-                              )
-                            : Image.asset(
-                                'assets/images/empty.jpg',
-                                width: 100,
-                                height: 100,
-                                fit: BoxFit.fill,
-                              ),
+              return InkWell(
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => Detail(
+                              goods: goods,
+                              goodsDataList: widget.goodsDataList)));
+                },
+                child: Container(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Container(
+                          color: Colors.grey.withOpacity(0.3),
+                          height: 120,
+                          child: goods.photoList != null &&
+                                  goods.photoList!.isNotEmpty
+                              ? Image.asset(
+                                  goods.photoList![0],
+                                  width: 100,
+                                  height: 100,
+                                  fit: BoxFit.fill,
+                                )
+                              : Image.asset(
+                                  'assets/images/empty.jpg',
+                                  width: 100,
+                                  height: 100,
+                                  fit: BoxFit.fill,
+                                ),
+                        ),
                       ),
-                    ),
-                    Text(
-                      goods.title,
-                      style: const TextStyle(fontSize: 14),
-                    ),
-                    Text(
-                      goods.price,
-                      style: const TextStyle(
-                          fontSize: 14, fontWeight: FontWeight.bold),
-                    ),
-                  ],
+                      const SizedBox(height: 7),
+                      Text(
+                        goods.title,
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                      Text(
+                        "${goods.price}원",
+                        style: const TextStyle(
+                            fontSize: 14, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
                 ),
               );
             },
+            childCount: widget.goodsDataList?.length ?? 0,
           ),
         ),
       ),
