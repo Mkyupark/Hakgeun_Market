@@ -23,7 +23,7 @@ class ProfilePage extends State<ProfileScreen> {
     final user = userProvider.user;
 
     if (user != null) {
-      navProvider.updatePage(3);
+
       return Scaffold(
         body: ListView(
           children: <Widget>[

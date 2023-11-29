@@ -24,9 +24,12 @@ class Detail extends StatefulWidget {
 class _DetailState extends State<Detail> {
   late Goods? goodsData;
   late List<Goods> goodsList;
+  late String selectedCategory = "전체";
   final UserProvider _userProvider = UserProvider();
   var isLoading = true;
-  bool isHeartOn = false;
+  late bool isHeartOn;
+  late bool isSoldOut;
+  late int likeCount;
 
 // 채팅방 이름 생성을 도와주는 함수
   String _generateChatRoomName(String nickName1, String nickName2) {
@@ -81,6 +84,9 @@ class _DetailState extends State<Detail> {
   void initState() {
     // 위젯이 생성될 때 Firebase에서 데이터를 가져옴.(상태초기화)
     super.initState();
+    isHeartOn = false;
+    isSoldOut = true;
+    likeCount = int.parse(widget.goods.likeCnt ?? "0");
     goodsData = widget.goods;
     goodsList = widget.goodsDataList;
   }
@@ -221,10 +227,10 @@ class _DetailState extends State<Detail> {
                         ),
                       ),
                       Text(
-                        goodsData!.loc ?? "",
+                        goodsData!.loc ?? "금오공과대학교",
                         style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
+                          color: Colors.grey,
+                          fontSize: 13,
                         ),
                       ),
                     ],
@@ -294,7 +300,6 @@ class _DetailState extends State<Detail> {
                   ),
                 ),
                 const SizedBox(width: 5),
-                
               ],
             ),
             const SizedBox(height: 15),
@@ -322,7 +327,7 @@ class _DetailState extends State<Detail> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  "판매자님의 판매 상품",
+                  "이 글과 함께 봤어요",
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
@@ -357,13 +362,18 @@ class _DetailState extends State<Detail> {
         children: [
           GestureDetector(
             onTap: () {
+
               if (isHeartOn == false) {
                 setState(() {
+                  incrementLikeCount();
+                  widget.goods.likeCnt = likeCount.toString();
+                  //관심 수 업데이트 함수(goods.likeCnt Update)
+                  //addMyFavoriteContent(widget.goods);
                   isHeartOn = !isHeartOn;
                 });
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                   content: const Text("관심목록에 등록되었습니다."),
-                  duration: const Duration(seconds: 2),
+                  duration: const Duration(seconds: 1),
                   action: SnackBarAction(
                     label: '취소',
                     onPressed: () {
@@ -377,7 +387,7 @@ class _DetailState extends State<Detail> {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text("관심목록에서 해제했습니다."),
-                    duration: Duration(seconds: 3),
+                    duration: Duration(seconds: 1),
                   ),
                 );
                 setState(() {
@@ -426,12 +436,21 @@ class _DetailState extends State<Detail> {
                       const EdgeInsets.symmetric(horizontal: 20, vertical: 7),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(5),
-                    color: goodsData!.username == currentUser!.nickName
+                    color: (goodsData!.username == currentUser!.nickName || isSoldOut) 
                         ? Colors
-                            .grey // Change the color to grey if usernames match
+                            .grey // Change the color to grey if usernames match, 판매완료시에도 바꿈.
                         : Colors.green, // Use green otherwise
                   ),
-                  child: GestureDetector(
+                  child: isSoldOut
+                  ? const Text(
+                    "판매완료",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      fontSize: 16,
+                    ),
+                    )
+                  : GestureDetector(
                     onTap: goodsData!.username == currentUser.nickName
                         ? null // Disable onTap if usernames match
                         : () async {
@@ -477,7 +496,12 @@ class _DetailState extends State<Detail> {
     // if (isLoading) {
     //   return Center(child: CircularProgressIndicator());
     // }
-
+    selectedCategory = goodsData!.category;
+    List<Goods> filteredGoods = widget.goodsDataList
+    .where((goods) => goods.category == selectedCategory)
+    .take(6)
+    .toList();
+    
     return CustomScrollView(slivers: [
       SliverList(
         delegate: SliverChildListDelegate(
@@ -498,69 +522,68 @@ class _DetailState extends State<Detail> {
               crossAxisCount: 2, mainAxisSpacing: 10, crossAxisSpacing: 10),
           delegate: SliverChildBuilderDelegate(
             (BuildContext context, int index) {
+              Goods goods = filteredGoods[index];
               // goodsDataList에서 각 아이템 가져오기
-              if (widget.goodsDataList == null ||
-                  index >= widget.goodsDataList.length) {
+              if (filteredGoods == null ||
+                  index >= filteredGoods.length) {
                 // goodsDataList가 null이거나 인덱스가 범위를 벗어날 경우 에러 방지
                 return Container();
               }
-              Goods goods = widget.goodsDataList[index];
-
+               //if( firebase에서 갖고온 goods.category  == goods.category){
+                return InkWell(
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => Detail(
+                                goods: goods,
+                                goodsDataList: widget.goodsDataList)));
+                  },
+                  child: Container(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: Container(
+                            color: Colors.grey.withOpacity(0.3),
+                            height: 120,
+                            child: goods.photoList != null &&
+                                    goods.photoList!.isNotEmpty
+                                ? Image.asset(
+                                    goods.photoList![0],
+                                    width: 100,
+                                    height: 100,
+                                    fit: BoxFit.fill,
+                                  )
+                                : Image.asset(
+                                    'assets/images/empty.jpg',
+                                    width: 100,
+                                    height: 100,
+                                    fit: BoxFit.fill,
+                                  ),
+                          ),
+                        ),
+                        const SizedBox(height: 7),
+                        Text(
+                          goods.title,
+                          style: const TextStyle(fontSize: 14),
+                        ),
+                        Text(
+                          "${goods.price}원",
+                          style: const TextStyle(
+                              fontSize: 14, fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
               // if (goods.photoList == null || goods.photoList!.isEmpty) {
               //   // photoList가 null이거나 비어 있을 경우 에러 방지
               //   return Container();
               // }
-
-              return InkWell(
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => Detail(
-                              goods: goods,
-                              goodsDataList: widget.goodsDataList)));
-                },
-                child: Container(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: Container(
-                          color: Colors.grey.withOpacity(0.3),
-                          height: 120,
-                          child: goods.photoList != null &&
-                                  goods.photoList!.isNotEmpty
-                              ? Image.asset(
-                                  goods.photoList![0],
-                                  width: 100,
-                                  height: 100,
-                                  fit: BoxFit.fill,
-                                )
-                              : Image.asset(
-                                  'assets/images/empty.jpg',
-                                  width: 100,
-                                  height: 100,
-                                  fit: BoxFit.fill,
-                                ),
-                        ),
-                      ),
-                      const SizedBox(height: 7),
-                      Text(
-                        goods.title,
-                        style: const TextStyle(fontSize: 14),
-                      ),
-                      Text(
-                        "${goods.price}원",
-                        style: const TextStyle(
-                            fontSize: 14, fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                ),
-              );
             },
-            childCount: widget.goodsDataList?.length ?? 0,
+            childCount: filteredGoods.length,
           ),
         ),
       ),
@@ -575,4 +598,16 @@ class _DetailState extends State<Detail> {
         body: _bodyWidget(),
         bottomNavigationBar: _bottomBarWidget());
   }
+  
+  void incrementLikeCount(){
+    setState(() {
+      likeCount++;
+    });
+  }
+  // 관심목록 등록하는 함수
+  // void addMyFavoriteContent(Goods goods) async{
+  //   final GoodsService goodsService = GoodsService();
+  //   await goodsService.updateGoodsModel(widget.goods);
+  // }
+
 }
