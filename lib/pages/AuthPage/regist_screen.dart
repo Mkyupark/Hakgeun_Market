@@ -24,25 +24,47 @@ class _RegistScreenState extends State<RegistScreen> {
 
   void register() async {
     if (isFormValid) {
-      final user = UserModel(
-        id: FirebaseAuth.instance.currentUser!.uid,
-        phoneNum: widget.phoneNumber,
-        nickName: _nicknameController.text,
-        schoolName: selectedSchool!,
-        mannerTemperature: 36.5, // 예시로 기본 매너온도를 설정
-      );
+      try {
+        final user = UserModel(
+          id: FirebaseAuth.instance.currentUser!.uid,
+          phoneNum: widget.phoneNumber,
+          nickName: _nicknameController.text,
+          schoolName: selectedSchool!,
+          mannerTemperature: 36.5,
+        );
 
-      // UserService 인스턴스 생성
-      final userService = UserService();
-      Provider.of<UserProvider>(context, listen: false).setUser(user);
-      // Firestore에 사용자 정보 저장
-      await userService.createUser(user);
+        // UserService 인스턴스 생성
+        final userService = UserService();
+        Provider.of<UserProvider>(context, listen: false).setUser(user);
 
-      // App 화면으로 이동
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => App()),
-      );
+        // Firestore에 사용자 정보 저장
+        await userService.createUser(user);
+
+        // App 화면으로 이동
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => App()),
+        );
+      } catch (e) {
+        // 닉네임 중복 예외 처리
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text("회원가입 오류"),
+              content: const Text("이미 사용 중인 닉네임입니다. 다른 닉네임을 선택해 주세요."),
+              actions: <Widget>[
+                TextButton(
+                  child: const Text("확인"),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      }
     }
   }
 
