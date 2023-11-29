@@ -14,7 +14,18 @@ class UserService {
   UserService._internal();
 
   Future<void> createUser(UserModel user) async {
-    await _db.collection('users').doc(user.id).set(user.toMap());
+    // 닉네임으로 이미 존재하는 사용자를 찾습니다.
+    var querySnapshot = await _db
+        .collection('users')
+        .where('nickname', isEqualTo: user.nickName)
+        .get();
+
+    // 이미 존재하는 닉네임이 없는 경우에만 사용자를 생성합니다.
+    if (querySnapshot.docs.isEmpty) {
+      await _db.collection('users').doc(user.id).set(user.toMap());
+    } else {
+      throw Exception('닉네임이 이미 존재합니다.');
+    }
   }
 
   Future<void> updateUser(UserModel user) async {
