@@ -117,7 +117,7 @@ class GoodsService {
       }
     }
   }
-  
+
 //Delete
   Future<void> delGoodsModel(String goodsid) async {
     await _db.collection('goods').doc(goodsid).delete();
@@ -126,5 +126,48 @@ class GoodsService {
 //Update
   Future<void> updateGoodsModel(Goods goods) async {
     await _db.collection('goods').doc(goods.id).update(goods.toJson());
+  }
+
+  // 판매자 == 유저
+  Future<List<Goods>> getFilterSaleGoods(String filterNickname) async {
+    CollectionReference<Map<String, dynamic>> collectionReference =
+        _db.collection("goods");
+
+    QuerySnapshot<Map<String, dynamic>> querySnapshot =
+        await collectionReference.get();
+    List<Goods> goods = [];
+
+    for (var doc in querySnapshot.docs) {
+      Goods fireModel = Goods.fromQuerySnapshot(doc);
+
+      // Check if the filterNickname matches either saleNickname or purchaseNickName
+      if (fireModel.saler == filterNickname ||
+          fireModel.saler == filterNickname) {
+        goods.add(fireModel);
+      }
+    }
+
+    return goods;
+  }
+
+  Future<List<Goods>> getFilterBuyGoods(String filterNickname) async {
+    CollectionReference<Map<String, dynamic>> collectionReference =
+        _db.collection("goods");
+
+    QuerySnapshot<Map<String, dynamic>> querySnapshot =
+        await collectionReference.get();
+    List<Goods> goods = [];
+
+    for (var doc in querySnapshot.docs) {
+      Goods fireModel = Goods.fromQuerySnapshot(doc);
+
+      // Check if the filterNickname matches either saleNickname or purchaseNickName
+      if (fireModel.buyer == filterNickname ||
+          fireModel.buyer == filterNickname) {
+        goods.add(fireModel);
+      }
+    }
+
+    return goods;
   }
 }
