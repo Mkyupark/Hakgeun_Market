@@ -9,6 +9,7 @@ import 'package:hakgeun_market/provider/user_provider.dart';
 import 'package:hakgeun_market/service/goodsService.dart';
 import 'package:hakgeun_market/service/userService.dart';
 import 'package:hakgeun_market/pages/chatroom/chatroom.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class Detail extends StatefulWidget {
@@ -98,12 +99,16 @@ class _DetailState extends State<Detail> {
   void initState() {
     // 위젯이 생성될 때 Firebase에서 데이터를 가져옴.(상태초기화)
     super.initState();
-    isHeartOn = false;
+    UserModel? currentUser = _userProvider.user;
+    if (currentUser?.likeList?.contains(widget.goods.id) ?? false) {
+      isHeartOn = true;
+    } else {
+      isHeartOn = false;
+    }
     isSoldOut = false;
     likeCount = int.parse(widget.goods.likeCnt ?? "0");
     goodsData = widget.goods;
     goodsList = widget.goodsDataList;
-    
   }
 
   // 앱 바 위젯 생성 함수
@@ -425,14 +430,19 @@ class _DetailState extends State<Detail> {
   // 하단 바 생성 함수
   Widget _bottomBarWidget() {
     UserModel? currentUser = _userProvider.user;
-    
-    void addlikeList() async{
-    await UserService().updateUser(currentUser!);
-  }
-    if(goodsData!.buyer != null)
-    { 
-        isSoldOut = true;
+
+    void addLikeList() async {
+      await UserService().updateUser(currentUser!);
     }
+
+    void delLikeList() async {
+      await UserService().updateUser(currentUser!);
+    }
+
+    if (goodsData!.buyer != null) {
+      isSoldOut = true;
+    }
+
     return Container(
       width: 50,
       padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -442,11 +452,12 @@ class _DetailState extends State<Detail> {
         children: [
           GestureDetector(
             onTap: () {
-              addlikeList(); 
               if (isHeartOn == false) {
+                currentUser?.likeList?.add(goodsData?.id ?? "");
+                addLikeList(); // 사용자 정보 업데이트
                 setState(() {
                   updateLikeCount(true); // LikeCnt 증가 함수
-                  isHeartOn = !isHeartOn;
+                  isHeartOn = !isHeartOn; // 좋아요 상태 변경
                 });
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                   content: const Text("관심목록에 등록되었습니다."),
@@ -454,24 +465,29 @@ class _DetailState extends State<Detail> {
                   action: SnackBarAction(
                     label: '취소',
                     onPressed: () {
+                      // 취소 로직
+                      delLikeList(); // 좋아요 제거
                       setState(() {
-                        updateLikeCount(false);
-                        isHeartOn = !isHeartOn;
+                        updateLikeCount(false); // LikeCnt 감소
+                        isHeartOn = !isHeartOn; // 좋아요 상태 변경
                       });
-                    }, //버튼 눌렀을때.
+                    }, // 버튼 눌렀을때.
                   ),
                 ));
               } else {
+                // 관심목록 제거
+                currentUser?.likeList?.remove(goodsData?.id);
+                delLikeList();
+                setState(() {
+                  updateLikeCount(false);
+                  isHeartOn = !isHeartOn;
+                });
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text("관심목록에서 해제했습니다."),
                     duration: Duration(seconds: 1),
                   ),
                 );
-                setState(() {
-                  updateLikeCount(false);
-                  isHeartOn = !isHeartOn;
-                });
               }
             },
             child: SvgPicture.asset(
@@ -494,7 +510,10 @@ class _DetailState extends State<Detail> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "${goodsData!.price}원",
+                int.parse(goodsData!.price)! <= 0
+                                ? '무료나눔'
+                                : NumberFormat('###,###,###.###원')
+                                    .format(int.parse(goodsData!.price)),
                 style: const TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.bold,
@@ -515,56 +534,58 @@ class _DetailState extends State<Detail> {
                       const EdgeInsets.symmetric(horizontal: 20, vertical: 7),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(5),
-                    color: isSoldOut || goodsData!.saler == currentUser!.nickName
+                    color: isSoldOut ||
+                            goodsData!.saler == currentUser!.nickName
                         ? Colors
                             .grey // Change the color to grey if usernames match, 판매완료시에도 바꿈.
                         : Colors.green, // Use green otherwise
                   ),
-                  child: isSoldOut 
-                  ? const Text(
-                      "판매완료",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        fontSize: 16,
-                      ),
-                  )
-                  :GestureDetector(
-                    onTap: goodsData!.saler == currentUser?.nickName
-                        ? null // Disable onTap if usernames match
-                        : () async {
-                            // Your existing onTap logic here
-                            String chatRoomName = _generateChatRoomName(
-                                goodsData!.saler ?? "NULL",
-                                currentUser!.nickName);
-                            bool roomExists =
-                                await _checkIfChatRoomExists(chatRoomName);
-                            if (!roomExists) {
-                              await _createChatRoom(
-                                  chatRoomName,
-                                  chatRoomName,
-                                  goodsData!.saler ?? "NULL",
-                                  currentUser.nickName);
-                            }
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) => ChatRoom(
-                                  rname: chatRoomName,
-                                  uid2: goodsData!.saler ?? "NULL",
-                                  uid1: currentUser.nickName,
-                                ),
-                              ),
-                            );
-                          },
-                    child: const Text(
-                      "채팅으로 거래하기",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        fontSize: 16,
-                      ),
-                    ),
-                  ),
+                  child: isSoldOut
+                      ? const Text(
+                          "판매완료",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            fontSize: 16,
+                          ),
+                        )
+                      : GestureDetector(
+                          onTap: goodsData!.saler == currentUser?.nickName
+                              ? null // Disable onTap if usernames match
+                              : () async {
+                                  // Your existing onTap logic here
+                                  String chatRoomName = _generateChatRoomName(
+                                      goodsData!.saler ?? "NULL",
+                                      currentUser!.nickName);
+                                  bool roomExists =
+                                      await _checkIfChatRoomExists(
+                                          chatRoomName);
+                                  if (!roomExists) {
+                                    await _createChatRoom(
+                                        chatRoomName,
+                                        chatRoomName,
+                                        goodsData!.saler ?? "NULL",
+                                        currentUser.nickName);
+                                  }
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) => ChatRoom(
+                                        rname: chatRoomName,
+                                        uid2: goodsData!.saler ?? "NULL",
+                                        uid1: currentUser.nickName,
+                                      ),
+                                    ),
+                                  );
+                                },
+                          child: const Text(
+                            "채팅으로 거래하기",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
                 ),
               ],
             ),
@@ -582,12 +603,12 @@ class _DetailState extends State<Detail> {
     currentDetail = goodsData!.id ?? "";
     selectedCategory = goodsData!.category;
     List<Goods> filteredGoods = widget.goodsDataList
-    .where((goods) => goods.category == selectedCategory
-    && currentDetail != goods.id)
-    .take(6)
-    .toList();
+        .where((goods) =>
+            goods.category == selectedCategory && currentDetail != goods.id)
+        .take(6)
+        .toList();
     print(widget.goods.toString());
-    
+
     return CustomScrollView(slivers: [
       SliverList(
         delegate: SliverChildListDelegate(
@@ -610,60 +631,62 @@ class _DetailState extends State<Detail> {
             (BuildContext context, int index) {
               Goods goods = filteredGoods[index];
               // goodsDataList에서 각 아이템 가져오기
-              if (filteredGoods == null ||
-                  index >= filteredGoods.length) {
+              if (filteredGoods == null || index >= filteredGoods.length) {
                 // goodsDataList가 null이거나 인덱스가 범위를 벗어날 경우 에러 방지
                 return Container();
               }
-               //if( firebase에서 갖고온 goods.category  == goods.category){
-                return InkWell(
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => Detail(
-                                goods: goods,
-                                goodsDataList: widget.goodsDataList)));
-                  },
-                  child: Container(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
-                          child: Container(
-                            color: Colors.grey.withOpacity(0.3),
-                            height: 120,
-                            child: goods.photoList != null &&
-                                    goods.photoList!.isNotEmpty
-                                ? Image.asset(
-                                    goods.photoList![0],
-                                    width: 100,
-                                    height: 100,
-                                    fit: BoxFit.fill,
-                                  )
-                                : Image.asset(
-                                    'assets/images/empty.jpg',
-                                    width: 100,
-                                    height: 100,
-                                    fit: BoxFit.fill,
-                                  ),
-                          ),
+              //if( firebase에서 갖고온 goods.category  == goods.category){
+              return InkWell(
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => Detail(
+                              goods: goods,
+                              goodsDataList: widget.goodsDataList)));
+                },
+                child: Container(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Container(
+                          color: Colors.grey.withOpacity(0.3),
+                          height: 120,
+                          child: goods.photoList != null &&
+                                  goods.photoList!.isNotEmpty
+                              ? Image.asset(
+                                  goods.photoList![0],
+                                  width: 100,
+                                  height: 100,
+                                  fit: BoxFit.fill,
+                                )
+                              : Image.asset(
+                                  'assets/images/empty.jpg',
+                                  width: 100,
+                                  height: 100,
+                                  fit: BoxFit.fill,
+                                ),
                         ),
-                        const SizedBox(height: 7),
-                        Text(
-                          goods.title,
-                          style: const TextStyle(fontSize: 14),
-                        ),
-                        Text(
-                          "${goods.price}원",
-                          style: const TextStyle(
-                              fontSize: 14, fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(height: 7),
+                      Text(
+                        goods.title,
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                      Text(
+                        int.parse(goodsData!.price)! <= 0
+                                ? '무료나눔'
+                                : NumberFormat('###,###,###.###원')
+                                    .format(int.parse(goodsData!.price)),
+                        style: const TextStyle(
+                            fontSize: 14, fontWeight: FontWeight.bold),
+                      ),
+                    ],
                   ),
-                );
+                ),
+              );
               // if (goods.photoList == null || goods.photoList!.isEmpty) {
               //   // photoList가 null이거나 비어 있을 경우 에러 방지
               //   return Container();
@@ -685,15 +708,12 @@ class _DetailState extends State<Detail> {
         bottomNavigationBar: _bottomBarWidget());
   }
 
-  void updateLikeCount(bool increment){
+  void updateLikeCount(bool increment) {
     setState(() {
-      if(increment)
-      {
+      if (increment) {
         likeCount++;
-      }
-      else
-      {
-        if(likeCount > 0) likeCount--;
+      } else {
+        if (likeCount > 0) likeCount--;
       }
       setState(() {
         goodsData?.likeCnt = likeCount.toString(); // Goods 객체의 likeCnt도 업데이트
@@ -701,11 +721,11 @@ class _DetailState extends State<Detail> {
     });
     updateGoodsLikeCount();
   }
-  void updateGoodsLikeCount() async{
-    if(goodsData != null){
-      await goodsService.updateGoodsModel(goodsData!);  // GoodsService를 사용하여 업데이트
+
+  void updateGoodsLikeCount() async {
+    if (goodsData != null) {
+      await goodsService
+          .updateGoodsModel(goodsData!); // GoodsService를 사용하여 업데이트
     }
   }
-
-  
 }
