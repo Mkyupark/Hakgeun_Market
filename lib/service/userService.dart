@@ -70,4 +70,10 @@ class UserService {
     var doc = await _db.collection('users').doc(uid).get();
     return doc.exists; // 문서가 존재하면 true, 그렇지 않으면 false를 반환합니다.
   }
+
+  Future<List<String>>? getUserLikeList(String userId) async {
+    DocumentSnapshot userDoc = await _db.collection('users').doc(userId).get();
+    UserModel user = UserModel.fromDocument(userDoc);
+    return user.likeList ?? [];
+  }
 }
