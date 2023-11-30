@@ -25,6 +25,7 @@ class _DetailState extends State<Detail> {
   late Goods? goodsData;
   late List<Goods> goodsList;
   late String selectedCategory = "전체";
+  late String currentDetail;
   final UserProvider _userProvider = UserProvider();
   var isLoading = true;
   late bool isHeartOn;
@@ -85,10 +86,11 @@ class _DetailState extends State<Detail> {
     // 위젯이 생성될 때 Firebase에서 데이터를 가져옴.(상태초기화)
     super.initState();
     isHeartOn = false;
-    isSoldOut = true;
+    isSoldOut = false;
     likeCount = int.parse(widget.goods.likeCnt ?? "0");
     goodsData = widget.goods;
     goodsList = widget.goodsDataList;
+
   }
 
   // 앱 바 위젯 생성 함수
@@ -496,11 +498,14 @@ class _DetailState extends State<Detail> {
     // if (isLoading) {
     //   return Center(child: CircularProgressIndicator());
     // }
+    currentDetail = goodsData!.id ?? "";
     selectedCategory = goodsData!.category;
     List<Goods> filteredGoods = widget.goodsDataList
-    .where((goods) => goods.category == selectedCategory)
+    .where((goods) => goods.category == selectedCategory
+    && currentDetail != goods.id)
     .take(6)
     .toList();
+    print(widget.goods.toString());
     
     return CustomScrollView(slivers: [
       SliverList(
