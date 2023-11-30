@@ -39,6 +39,7 @@ class _ChatListState extends State<ChatList> {
               String rname = rooms[index]['rname'];
               String uid1 = rooms[index]['uid1'];
               String uid2 = rooms[index]['uid2'];
+              String id=rooms[index]['id'];
               
               
               if (currentUser != null && rname.contains(currentUser.nickName)) {
@@ -55,6 +56,7 @@ class _ChatListState extends State<ChatList> {
                     rname: rooms[index]['rname'],
                     uid1: rooms[index]['uid1'],
                     uid2: rooms[index]['uid2'],
+                    id:id,
                   ),),);
                     },
                   );
@@ -71,6 +73,7 @@ class _ChatListState extends State<ChatList> {
                     rname: rooms[index]['rname'],
                     uid1: rooms[index]['uid2'],
                     uid2: rooms[index]['uid1'],
+                    id:id,
                   ),),);
               
                     },
