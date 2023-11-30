@@ -86,7 +86,8 @@ class _AddGoodsFormState extends State<AddGoodsForm> {
 
     final goods = Goods(
         photoList: [],
-        username: user!.nickName,
+        saler: user!.nickName,
+        buyer: null,
         title: _itemNameController.text,
         content: _itemDescriptionController.text,
         price: _priceController.text,

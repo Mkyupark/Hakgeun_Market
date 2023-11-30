@@ -214,8 +214,8 @@ class _DetailState extends State<Detail> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        goodsData!.username,
-                        style: TextStyle(
+                        goodsData!.saler!,
+                        style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
                         ),
@@ -294,7 +294,6 @@ class _DetailState extends State<Detail> {
                   ),
                 ),
                 const SizedBox(width: 5),
-                
               ],
             ),
             const SizedBox(height: 15),
@@ -426,29 +425,29 @@ class _DetailState extends State<Detail> {
                       const EdgeInsets.symmetric(horizontal: 20, vertical: 7),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(5),
-                    color: goodsData!.username == currentUser!.nickName
+                    color: goodsData!.saler == currentUser!.nickName
                         ? Colors
                             .grey // Change the color to grey if usernames match
                         : Colors.green, // Use green otherwise
                   ),
                   child: GestureDetector(
-                    onTap: goodsData!.username == currentUser.nickName
+                    onTap: goodsData!.saler == currentUser.nickName
                         ? null // Disable onTap if usernames match
                         : () async {
                             // Your existing onTap logic here
                             String chatRoomName = _generateChatRoomName(
-                                goodsData!.username, currentUser!.nickName);
+                                goodsData!.saler!, currentUser!.nickName);
                             bool roomExists =
                                 await _checkIfChatRoomExists(chatRoomName);
                             if (!roomExists) {
                               await _createChatRoom(chatRoomName, chatRoomName,
-                                  goodsData!.username, currentUser.nickName);
+                                  goodsData!.saler!, currentUser.nickName);
                             }
                             Navigator.of(context).push(
                               MaterialPageRoute(
                                 builder: (context) => ChatRoom(
                                   rname: chatRoomName,
-                                  uid2: goodsData!.username,
+                                  uid2: goodsData!.saler!,
                                   uid1: currentUser.nickName,
                                 ),
                               ),

@@ -3,7 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class Goods {
   String? id;
   List<String>? photoList;
-  String username;
+  String? saler;
+  String? buyer;
   String title;
   String? content;
   String price;
@@ -14,24 +15,27 @@ class Goods {
   Timestamp? updateTime;
   String category;
 
-  Goods(
-      {required this.photoList,
-      required this.username,
-      required this.title,
-      required this.content,
-      required this.price,
-      required this.loc,
-      required this.likeCnt,
-      required this.readCnt,
-      required this.uploadTime,
-      required this.updateTime,
-      required this.category});
+  Goods({
+    required this.photoList,
+    required this.title,
+    required this.content,
+    required this.price,
+    required this.loc,
+    required this.likeCnt,
+    required this.readCnt,
+    required this.uploadTime,
+    required this.updateTime,
+    required this.category,
+    required this.buyer,
+    required this.saler,
+  });
 
   // firebase에서 데이터 가져올 때
   Goods.fromJson(dynamic json)
       : id = json['id'],
         photoList = json['photoList'].cast<String>() ?? "",
-        username = json['username'],
+        saler = json['saler'],
+        buyer = json['buyer'],
         title = json['title'],
         content = json['content'],
         loc = json['location'],
@@ -45,7 +49,8 @@ class Goods {
   // firebase에 저장할 때
   Map<String, dynamic> toJson() => {
         'photoList': photoList,
-        'username': username,
+        'saler': saler,
+        'buyer': saler,
         'title': title,
         'content': content,
         'price': price,
@@ -65,7 +70,8 @@ class Goods {
   factory Goods.fromDocumentSnapshot(DocumentSnapshot doc) {
     return Goods(
         photoList: doc['photoList'].cast<String>(),
-        username: doc['username'],
+        saler: doc['saler'],
+        buyer: doc['buyer'],
         title: doc['title'],
         content: doc['content'],
         price: doc['price'], // 또는 json['price'].toInt() 등으로 수정
