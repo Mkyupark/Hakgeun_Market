@@ -25,6 +25,7 @@ class _DetailState extends State<Detail> {
   late Goods? goodsData;
   late List<Goods> goodsList;
   final UserProvider _userProvider = UserProvider();
+  final goodsService = GoodsService();
   var isLoading = true;
   bool isHeartOn = false;
 
@@ -83,6 +84,7 @@ class _DetailState extends State<Detail> {
     super.initState();
     goodsData = widget.goods;
     goodsList = widget.goodsDataList;
+    print(widget.goods.id);
   }
 
   // 앱 바 위젯 생성 함수
@@ -214,8 +216,8 @@ class _DetailState extends State<Detail> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        goodsData!.saler!,
-                        style: const TextStyle(
+                        goodsData!.saler ?? "null",
+                        style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
                         ),
@@ -287,7 +289,7 @@ class _DetailState extends State<Detail> {
                   ),
                 ),
                 Text(
-                  " 조회 ${goodsData!.readCnt}",
+                  " 조회 ${goodsData!.chatCnt}",
                   style: const TextStyle(
                     fontSize: 12,
                     color: Colors.grey,
@@ -436,18 +438,22 @@ class _DetailState extends State<Detail> {
                         : () async {
                             // Your existing onTap logic here
                             String chatRoomName = _generateChatRoomName(
-                                goodsData!.saler!, currentUser!.nickName);
+                                goodsData!.saler ?? "NULL",
+                                currentUser!.nickName);
                             bool roomExists =
                                 await _checkIfChatRoomExists(chatRoomName);
                             if (!roomExists) {
-                              await _createChatRoom(chatRoomName, chatRoomName,
-                                  goodsData!.saler!, currentUser.nickName);
+                              await _createChatRoom(
+                                  chatRoomName,
+                                  chatRoomName,
+                                  goodsData!.saler ?? "NULL",
+                                  currentUser.nickName);
                             }
                             Navigator.of(context).push(
                               MaterialPageRoute(
                                 builder: (context) => ChatRoom(
                                   rname: chatRoomName,
-                                  uid2: goodsData!.saler!,
+                                  uid2: goodsData!.saler ?? "NULL",
                                   uid1: currentUser.nickName,
                                 ),
                               ),

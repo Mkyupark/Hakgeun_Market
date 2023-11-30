@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -79,12 +81,13 @@ class _AddGoodsFormState extends State<AddGoodsForm> {
 
   void register() async {
     final goodsService = GoodsService();
-    final userService = UserService();
 
+    String number = Random().nextInt(100).toString();
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     final user = userProvider.user;
 
     final goods = Goods(
+        id: number,
         photoList: [],
         saler: user!.nickName,
         buyer: null,
@@ -93,7 +96,7 @@ class _AddGoodsFormState extends State<AddGoodsForm> {
         price: _priceController.text,
         loc: _location,
         likeCnt: "0",
-        readCnt: "0",
+        chatCnt: "0",
         uploadTime: Timestamp.now(),
         updateTime: Timestamp.now(),
         category: firstCate);

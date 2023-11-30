@@ -10,25 +10,25 @@ class Goods {
   String price;
   String? loc;
   String? likeCnt;
-  String? readCnt;
+  String? chatCnt;
   Timestamp? uploadTime;
   Timestamp? updateTime;
   String category;
 
-  Goods({
-    required this.photoList,
-    required this.title,
-    required this.content,
-    required this.price,
-    required this.loc,
-    required this.likeCnt,
-    required this.readCnt,
-    required this.uploadTime,
-    required this.updateTime,
-    required this.category,
-    required this.buyer,
-    required this.saler,
-  });
+  Goods(
+      {required this.id,
+      required this.photoList,
+      required this.saler,
+      required this.buyer,
+      required this.title,
+      required this.content,
+      required this.price,
+      required this.loc,
+      required this.likeCnt,
+      required this.chatCnt,
+      required this.uploadTime,
+      required this.updateTime,
+      required this.category});
 
   // firebase에서 데이터 가져올 때
   Goods.fromJson(dynamic json)
@@ -41,22 +41,23 @@ class Goods {
         loc = json['location'],
         price = json['price'], // 또는 json['price'].toInt() 등으로 수정
         likeCnt = json['likeCnt'],
-        readCnt = json['readCnt'],
+        chatCnt = json['chatCnt'],
         uploadTime = json['uploadTime'],
         updateTime = json['updateTime'],
         category = json['category'];
 
   // firebase에 저장할 때
   Map<String, dynamic> toJson() => {
+        'id': id,
         'photoList': photoList,
+        'buyer': buyer,
         'saler': saler,
-        'buyer': saler,
         'title': title,
         'content': content,
         'price': price,
         'loc': loc,
         'likeCnt': likeCnt,
-        'readCnt': readCnt,
+        'chatCnt': chatCnt,
         'uploadTime': uploadTime,
         'updateTime': updateTime,
         'category': category,
@@ -69,6 +70,7 @@ class Goods {
 
   factory Goods.fromDocumentSnapshot(DocumentSnapshot doc) {
     return Goods(
+        id: doc['id'],
         photoList: doc['photoList'].cast<String>(),
         saler: doc['saler'],
         buyer: doc['buyer'],
@@ -77,7 +79,7 @@ class Goods {
         price: doc['price'], // 또는 json['price'].toInt() 등으로 수정
         loc: doc['loc'],
         likeCnt: doc['likeCnt'],
-        readCnt: doc['readCnt'],
+        chatCnt: doc['chatcnt'],
         uploadTime: doc['uploadTime'],
         updateTime: doc['updateTime'],
         category: doc['category']);
