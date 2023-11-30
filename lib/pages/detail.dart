@@ -7,6 +7,7 @@ import 'package:hakgeun_market/pages/Goods/edit_goods.dart';
 import 'package:hakgeun_market/pages/app.dart';
 import 'package:hakgeun_market/provider/user_provider.dart';
 import 'package:hakgeun_market/service/goodsService.dart';
+import 'package:hakgeun_market/service/userService.dart';
 import 'package:hakgeun_market/pages/chatroom/chatroom.dart';
 import 'package:provider/provider.dart';
 
@@ -102,6 +103,7 @@ class _DetailState extends State<Detail> {
     likeCount = int.parse(widget.goods.likeCnt ?? "0");
     goodsData = widget.goods;
     goodsList = widget.goodsDataList;
+    
   }
 
   // 앱 바 위젯 생성 함수
@@ -423,6 +425,10 @@ class _DetailState extends State<Detail> {
   // 하단 바 생성 함수
   Widget _bottomBarWidget() {
     UserModel? currentUser = _userProvider.user;
+    
+    void addlikeList() async{
+    await UserService().updateUser(currentUser!);
+  }
     if(goodsData!.buyer != null)
     { 
         isSoldOut = true;
@@ -436,13 +442,10 @@ class _DetailState extends State<Detail> {
         children: [
           GestureDetector(
             onTap: () {
-
+              addlikeList(); 
               if (isHeartOn == false) {
                 setState(() {
-                  incrementLikeCount();
-                  widget.goods.likeCnt = likeCount.toString();
-                  //관심 수 업데이트 함수(goods.likeCnt Update)
-                  //addMyFavoriteContent(widget.goods);
+                  updateLikeCount(true); // LikeCnt 증가 함수
                   isHeartOn = !isHeartOn;
                 });
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -452,6 +455,7 @@ class _DetailState extends State<Detail> {
                     label: '취소',
                     onPressed: () {
                       setState(() {
+                        updateLikeCount(false);
                         isHeartOn = !isHeartOn;
                       });
                     }, //버튼 눌렀을때.
@@ -465,6 +469,7 @@ class _DetailState extends State<Detail> {
                   ),
                 );
                 setState(() {
+                  updateLikeCount(false);
                   isHeartOn = !isHeartOn;
                 });
               }
@@ -679,16 +684,28 @@ class _DetailState extends State<Detail> {
         body: _bodyWidget(),
         bottomNavigationBar: _bottomBarWidget());
   }
-  
-  void incrementLikeCount(){
-    setState(() {
-      likeCount++;
-    });
-  }
-  // 관심목록 등록하는 함수
-  // void addMyFavoriteContent(Goods goods) async{
-  //   final GoodsService goodsService = GoodsService();
-  //   await goodsService.updateGoodsModel(widget.goods);
-  // }
 
+  void updateLikeCount(bool increment){
+    setState(() {
+      if(increment)
+      {
+        likeCount++;
+      }
+      else
+      {
+        if(likeCount > 0) likeCount--;
+      }
+      setState(() {
+        goodsData?.likeCnt = likeCount.toString(); // Goods 객체의 likeCnt도 업데이트
+      });
+    });
+    updateGoodsLikeCount();
+  }
+  void updateGoodsLikeCount() async{
+    if(goodsData != null){
+      await goodsService.updateGoodsModel(goodsData!);  // GoodsService를 사용하여 업데이트
+    }
+  }
+
+  
 }
