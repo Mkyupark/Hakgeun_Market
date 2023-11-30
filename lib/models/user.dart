@@ -6,7 +6,7 @@ class UserModel {
   final String nickName;
   final String schoolName;
   final double mannerTemperature;
-  late final List<dynamic>? likeList;
+  final List<String>? likeList;
 
   UserModel({
     required this.id,
@@ -35,7 +35,9 @@ class UserModel {
       nickName: data['nickname'] ?? '이름없음',
       schoolName: data['schoolName'] ?? '정보없음',
       mannerTemperature: (data['mannerTemperature'] ?? 0).toDouble(),
-      likeList: data['likeList'] ?? [],
+      likeList: (data['likeList'] is List)
+          ? List<String>.from(data['likeList'].map((item) => item.toString()))
+          : null,
     );
   }
 }
