@@ -1,13 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:get/get.dart';
 import 'package:hakgeun_market/models/goods.dart';
 import 'package:hakgeun_market/models/user.dart';
+import 'package:hakgeun_market/pages/Goods/edit_goods.dart';
 import 'package:hakgeun_market/pages/app.dart';
 import 'package:hakgeun_market/provider/user_provider.dart';
 import 'package:hakgeun_market/service/goodsService.dart';
 import 'package:hakgeun_market/pages/chatroom/chatroom.dart';
+import 'package:provider/provider.dart';
 
 class Detail extends StatefulWidget {
   final Goods goods;
@@ -80,6 +81,16 @@ class _DetailState extends State<Detail> {
       print('Error creating chat room: $e');
       // Handle the error appropriately
     }
+  }
+
+  // detail 페이지에서 유저 정보 일치하는지 판별하는 함수
+  bool _isTrueUserInfo() {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final user = userProvider.user;
+    if (user?.nickName == widget.goods.saler) {
+      return true;
+    } else
+      return false;
   }
 
   @override
@@ -265,13 +276,71 @@ class _DetailState extends State<Detail> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const SizedBox(height: 15),
-            Text(
-              goodsData!.title,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
+            if (_isTrueUserInfo())
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: Row(
+                      children: [
+                        Text(
+                          goodsData!.title,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // 수정 아이콘
+                  GestureDetector(
+                    onTap: () {
+                      // 수정 아이콘을 눌렀을 때 수행할 동작
+                      print(goodsData?.id);
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            // builder: (context) => Home(SearchData: goodsList)),
+                            builder: (context) =>
+                                EditGoodsPage(goods: goodsData!)),
+                      );
+                      print('Edit icon pressed');
+                    },
+                    child: Icon(
+                      Icons.edit,
+                      size: 30,
+                    ),
+                  ),
+                  // 삭제 아이콘
+                  GestureDetector(
+                    onTap: () {
+                      // 삭제 아이콘을 눌렀을 때 수행할 동작
+                      print(goodsData?.id);
+                      goodsService.delGoodsModel(goodsData!.id ?? "null");
+                      print('Delete icon pressed');
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            // builder: (context) => Home(SearchData: goodsList)),
+                            builder: (context) => App()),
+                      );
+                    },
+                    child: Icon(
+                      Icons.delete,
+                      size: 30,
+                    ),
+                  ),
+                ],
+              )
+            else
+              Text(
+                goodsData!.title,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                ),
               ),
-            ),
             Text(
               goodsData!.category,
               style: const TextStyle(

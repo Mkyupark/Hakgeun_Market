@@ -20,6 +20,7 @@ class App extends StatefulWidget {
 
 class _AppState extends State<App> {
   late NavigationProvider _navigationBar;
+  int num = 0;
   List<Goods>? searchData;
 
   Widget _bodyWidget() {
@@ -99,6 +100,7 @@ class _AppState extends State<App> {
             searchData = searchTerm; // searchData 업데이트
           });
         },
+        num: _navigationBar.currentNavigationIndex,
       ),
       body: _bodyWidget(),
       bottomNavigationBar: _bottomNavigationBarWidget(),
