@@ -82,7 +82,7 @@ class _AddGoodsFormState extends State<AddGoodsForm> {
   void register() async {
     final goodsService = GoodsService();
 
-    String number = Random().nextInt(100).toString();
+    String number = FirebaseFirestore.instance.collection('goods').doc().id;
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     final user = userProvider.user;
 
