@@ -6,6 +6,7 @@ class UserModel {
   final String nickName;
   final String schoolName;
   final double mannerTemperature;
+  final List<String>? likeList;
 
   UserModel({
     required this.id,
@@ -13,6 +14,7 @@ class UserModel {
     required this.nickName,
     required this.schoolName,
     required this.mannerTemperature,
+    this.likeList,
   });
 
   Map<String, dynamic> toMap() {
@@ -21,6 +23,7 @@ class UserModel {
       'nickname': nickName,
       'schoolName': schoolName,
       'mannerTemperature': mannerTemperature,
+      'likeList': likeList,
     };
   }
 
@@ -32,6 +35,7 @@ class UserModel {
       nickName: data['nickname'] ?? '이름없음',
       schoolName: data['schoolName'] ?? '정보없음',
       mannerTemperature: (data['mannerTemperature'] ?? 0).toDouble(),
+      likeList: data['likeList'] ?? [],
     );
   }
 }
