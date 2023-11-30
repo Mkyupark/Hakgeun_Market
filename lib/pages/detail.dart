@@ -27,6 +27,7 @@ class _DetailState extends State<Detail> {
   late String selectedCategory = "전체";
   late String currentDetail;
   final UserProvider _userProvider = UserProvider();
+  final goodsService = GoodsService();
   var isLoading = true;
   late bool isHeartOn;
   late bool isSoldOut;
@@ -90,7 +91,6 @@ class _DetailState extends State<Detail> {
     likeCount = int.parse(widget.goods.likeCnt ?? "0");
     goodsData = widget.goods;
     goodsList = widget.goodsDataList;
-
   }
 
   // 앱 바 위젯 생성 함수
@@ -222,7 +222,7 @@ class _DetailState extends State<Detail> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        goodsData!.username,
+                        goodsData!.saler ?? "null",
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
@@ -295,7 +295,7 @@ class _DetailState extends State<Detail> {
                   ),
                 ),
                 Text(
-                  " 조회 ${goodsData!.readCnt}",
+                  " 조회 ${goodsData!.chatCnt}",
                   style: const TextStyle(
                     fontSize: 12,
                     color: Colors.grey,
@@ -438,38 +438,33 @@ class _DetailState extends State<Detail> {
                       const EdgeInsets.symmetric(horizontal: 20, vertical: 7),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(5),
-                    color: (goodsData!.username == currentUser!.nickName || isSoldOut) 
+                    color: goodsData!.username == currentUser!.nickName
                         ? Colors
                             .grey // Change the color to grey if usernames match, 판매완료시에도 바꿈.
                         : Colors.green, // Use green otherwise
                   ),
-                  child: isSoldOut
-                  ? const Text(
-                    "판매완료",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      fontSize: 16,
-                    ),
-                    )
-                  : GestureDetector(
+                  child: GestureDetector(
                     onTap: goodsData!.username == currentUser.nickName
                         ? null // Disable onTap if usernames match
                         : () async {
                             // Your existing onTap logic here
                             String chatRoomName = _generateChatRoomName(
-                                goodsData!.username, currentUser!.nickName);
+                                goodsData!.saler ?? "NULL",
+                                currentUser!.nickName);
                             bool roomExists =
                                 await _checkIfChatRoomExists(chatRoomName);
                             if (!roomExists) {
-                              await _createChatRoom(chatRoomName, chatRoomName,
-                                  goodsData!.username, currentUser.nickName);
+                              await _createChatRoom(
+                                  chatRoomName,
+                                  chatRoomName,
+                                  goodsData!.saler ?? "NULL",
+                                  currentUser.nickName);
                             }
                             Navigator.of(context).push(
                               MaterialPageRoute(
                                 builder: (context) => ChatRoom(
                                   rname: chatRoomName,
-                                  uid2: goodsData!.username,
+                                  uid2: goodsData!.saler ?? "NULL",
                                   uid1: currentUser.nickName,
                                 ),
                               ),

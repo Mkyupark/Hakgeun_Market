@@ -1,10 +1,14 @@
-// ignore_for_file: non_constant_identifier_names
+// ignore_for_file: non_constant_identifier_names, use_build_context_synchronously
 
 import 'package:flutter/material.dart';
+import 'package:hakgeun_market/models/goods.dart';
+import 'package:hakgeun_market/models/user.dart';
 import 'package:hakgeun_market/pages/AuthPage/login_screen.dart';
 import 'package:hakgeun_market/pages/AuthPage/regist_screen.dart';
+import 'package:hakgeun_market/pages/Goods/home.dart';
 import 'package:hakgeun_market/provider/navigation_provider.dart';
 import 'package:hakgeun_market/provider/user_provider.dart';
+import 'package:hakgeun_market/service/goodsService.dart';
 import 'package:hakgeun_market/service/userService.dart';
 import 'package:provider/provider.dart';
 
@@ -21,7 +25,8 @@ class ProfilePage extends State<ProfileScreen> {
     final userProvider = Provider.of<UserProvider>(context);
     final navProvider = Provider.of<NavigationProvider>(context);
     final user = userProvider.user;
-
+    List<Goods>? searchData;
+    final GoodsService goodsService = GoodsService();
     if (user != null) {
 
       return Scaffold(
@@ -31,37 +36,42 @@ class ProfilePage extends State<ProfileScreen> {
             ListTile(
               leading: const Icon(Icons.account_circle, size: 50),
               title: Text(user.nickName),
-              subtitle: Text('${user.schoolName} #${user.phoneNum}'),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('${user.schoolName} #${user.phoneNum}'),
+                ],
+              ),
             ),
-            _buildMannerTemperature(user.mannerTemperature),
             const Divider(),
-            _buildButton(context, Icons.list, '판매목록', Colors.green, () {
+            _buildMannerTemperature(context, user.mannerTemperature),
+            const Divider(),
+            _buildButton(context, Icons.list, '판매목록', Colors.green, () async {
+              // Filter goods for Sales List
+              List<Goods> salesList =
+                  await goodsService.getFilterSaleGoods(user.nickName);
+
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => Container()),
+                MaterialPageRoute(
+                  builder: (context) => Home(
+                    SearchData: salesList,
+                  ),
+                ),
               );
             }),
             _buildButton(context, Icons.shopping_cart, '구매목록', Colors.green,
-                () {
-              // Navigator push to 구매목록 screen
+                () async {
+              List<Goods> buyList =
+                  await goodsService.getFilterBuyGoods(user.nickName);
+
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => Container()),
-              );
-            }),
-            _buildButton(context, Icons.favorite, '관심목록', Colors.green, () {
-              // Navigator push to 관심목록 screen
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => Container()),
-              );
-            }),
-            _buildButton(context, Icons.notifications, '알림목록', Colors.green,
-                () {
-              // Navigator push to 알림목록 screen
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => Container()),
+                MaterialPageRoute(
+                  builder: (context) => Home(
+                    SearchData: buyList,
+                  ),
+                ),
               );
             }),
             const Divider(),
@@ -197,24 +207,74 @@ class ProfilePage extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildMannerTemperature(double temperature) {
+  Widget _buildMannerTemperature(BuildContext context, double temperature) {
     Color color;
+    String emoji;
+
     if (temperature < 35) {
       color = Colors.blue;
+      emoji = '😊'; // Emoji for lower temperatures
     } else if (temperature < 37) {
       color = Colors.green;
+      emoji = '😐'; // Emoji for moderate temperatures
     } else {
       color = Colors.red;
+      emoji = '😷'; // Emoji for higher temperatures
     }
 
     return ListTile(
-      title: const Text('매너 온도'),
-      subtitle: LinearProgressIndicator(
-        value: temperature / 100,
-        valueColor: AlwaysStoppedAnimation<Color>(color),
-        backgroundColor: Colors.grey[300],
+      title: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              const Text("학근 점수"),
+              const SizedBox(
+                  width:
+                      8.0), // Adjust the spacing between title and temperature
+              Text('${temperature.toStringAsFixed(1)}°C'),
+              const SizedBox(
+                  width:
+                      8.0), // Adjust the spacing between temperature and emoji
+              Text(emoji),
+            ],
+          ),
+          GestureDetector(
+            onTap: () {
+              _showMannerTemperatureInfo(context);
+            },
+            child: const Icon(Icons.info_outline,
+                color: Colors.blue), // Adjust the color as needed
+          ),
+        ],
       ),
-      trailing: Text('${temperature.toStringAsFixed(1)}°C'),
+      subtitle: ClipRRect(
+        borderRadius: BorderRadius.circular(10),
+        child: LinearProgressIndicator(
+          value: temperature / 100,
+          valueColor: AlwaysStoppedAnimation<Color>(color),
+          backgroundColor: Colors.grey[300],
+        ),
+      ),
+    );
+  }
+
+  void _showMannerTemperatureInfo(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('학근점수란?'),
+          content: const Text(
+              '학근점수는 사용자의 활동에 기반한 평판 점수입니다.\n긍정적인 활동으로 학점이 상승하며, 부정적인 행동으로 하락합니다.'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('닫기'),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ],
+        );
+      },
     );
   }
 

@@ -65,7 +65,7 @@ class _AppState extends State<App> {
                 'assets/svg/text-box.svg',
                 width: 30,
               ),
-              label: '게시판?'),
+              label: '관심목록'),
           BottomNavigationBarItem(
               icon: SvgPicture.asset(
                 'assets/svg/chat-outline.svg',
