@@ -354,7 +354,10 @@ class _DetailState extends State<Detail> {
   // 하단 바 생성 함수
   Widget _bottomBarWidget() {
     UserModel? currentUser = _userProvider.user;
-
+    if(goodsData!.buyer != null)
+    { 
+        isSoldOut = true;
+    }
     return Container(
       width: 50,
       padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -438,13 +441,22 @@ class _DetailState extends State<Detail> {
                       const EdgeInsets.symmetric(horizontal: 20, vertical: 7),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(5),
-                    color: goodsData!.username == currentUser!.nickName
+                    color: isSoldOut || goodsData!.saler == currentUser!.nickName
                         ? Colors
                             .grey // Change the color to grey if usernames match, 판매완료시에도 바꿈.
                         : Colors.green, // Use green otherwise
                   ),
-                  child: GestureDetector(
-                    onTap: goodsData!.username == currentUser.nickName
+                  child: isSoldOut 
+                  ? const Text(
+                      "판매완료",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        fontSize: 16,
+                      ),
+                  )
+                  :GestureDetector(
+                    onTap: goodsData!.saler == currentUser?.nickName
                         ? null // Disable onTap if usernames match
                         : () async {
                             // Your existing onTap logic here
