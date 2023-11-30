@@ -13,21 +13,6 @@ class GoodsService {
     await _db.collection('goods').doc().set(goods.toJson());
   }
 
-  // // READ 각각의 데이터를 콕 집어서 가져올때
-  // Future<Goods?> getGoodsFromUID(String goodsId) async {
-  //   try {
-  //     var snapshot = await _db.collection('goods').doc(goodsId).get();
-  //     if (snapshot.exists) {
-  //       return Goods.fromJson(snapshot);
-  //     } else {
-  //       return null; // 사용자를 찾을 수 없을 때 null을 반환합니다.
-  //     }
-  //   } catch (e) {
-  //     // 에러 처리
-  //     print('Error fetching user: $e');
-  //     return null;
-  //   }
-  // }
   Future<List<Goods>> getGoodsModelsByCategory(String category) async {
     CollectionReference<Map<String, dynamic>> collectionReference =
         _db.collection("goods");
@@ -120,12 +105,39 @@ class GoodsService {
 
 //Delete
   Future<void> delGoodsModel(String goodsid) async {
-    await _db.collection('goods').doc(goodsid).delete();
+    QuerySnapshot querySnapshot =
+        await _db.collection('goods').where('id', isEqualTo: goodsid).get();
+    print(querySnapshot.docs);
+    // 찾은 문서를 삭제
+    for (QueryDocumentSnapshot doc in querySnapshot.docs) {
+      await _db.collection('goods').doc(doc.id).delete();
+    }
+    // await _db.collection('goods').doc(goodsid).delete();
+  }
+
+  // id값으로 Goods 모델 찾기 함수
+  Future<Goods> FindGoodsById(String id) async {
+    QuerySnapshot<Map<String, dynamic>> querySnapshot =
+        await _db.collection('goods').where('id', isEqualTo: id).get();
+    Goods fireModel = Goods.fromDocumentSnapshot(querySnapshot.docs.first);
+    return fireModel;
   }
 
 //Update
   Future<void> updateGoodsModel(Goods goods) async {
-    await _db.collection('goods').doc(goods.id).update(goods.toJson());
+    QuerySnapshot<Map<String, dynamic>> querySnapshot =
+        await _db.collection('goods').where('id', isEqualTo: goods.id).get();
+    if (querySnapshot.docs.isNotEmpty) {
+      QueryDocumentSnapshot<Map<String, dynamic>> documentSnapshot =
+          querySnapshot.docs.first;
+      String documentID = documentSnapshot.id;
+      await _db.collection('goods').doc(documentID).update(goods.toJson());
+      print("업데이트 완료");
+    } else {
+      print("id: ${querySnapshot.docs.first.id} title: ${goods.title}");
+      // print(querySnapshot.docs.first);
+      // print("데이터 없음");
+    }
   }
 
   // 판매자 == 유저

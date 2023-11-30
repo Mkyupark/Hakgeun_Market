@@ -4,25 +4,28 @@ import 'package:hakgeun_market/service/goodsService.dart';
 
 class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
   final Function(List<Goods>) onSearchCallback;
-
-  const CustomAppBar({required this.onSearchCallback});
+  final int num;
+  const CustomAppBar(
+      {super.key, required this.onSearchCallback, required this.num});
 
   @override
-  _CustomAppBarState createState() => _CustomAppBarState();
+  _CustomAppBarState createState() => _CustomAppBarState(num: num);
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }
 
 class _CustomAppBarState extends State<CustomAppBar> {
+  final int num;
+  _CustomAppBarState({required this.num});
+
   final TextEditingController _searchController = TextEditingController();
   late String selectedCategory = "전체";
   final List<String> temp = ["전체", "가구", "의류", "전자기기", "주방용품", "기타"];
-
+  final List<String> temp2 = ["학근 마켓", "관심목록", "채팅", "내정보"];
   @override
   void initState() {
     super.initState();
     _SearchAllGoodsModel(context, searchTerm: "", category: selectedCategory);
-    // initState에서 필요한 초기화 코드 작성
   }
 
   void _showCategoryDialog(BuildContext context) async {
@@ -125,21 +128,21 @@ class _CustomAppBarState extends State<CustomAppBar> {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      title: const Text(
-        "학근 마켓",
-        style: TextStyle(color: Colors.white),
+      title: Text(
+        temp2[widget.num],
+        style: const TextStyle(color: Colors.white),
       ),
       backgroundColor: Colors.green,
       actions: <Widget>[
         IconButton(
-          icon: Icon(Icons.search),
+          icon: const Icon(Icons.search),
           onPressed: () {
             _showSearchDialog(context);
           },
           color: Colors.white,
         ),
         IconButton(
-          icon: Icon(Icons.menu),
+          icon: const Icon(Icons.menu),
           onPressed: () {
             _showCategoryDialog(context);
           },
