@@ -126,7 +126,7 @@ class _HomeState extends State<Home> {
                                   width: 1,
                                 ),
                                 Text(
-                                  goods.readCnt ?? '0',
+                                  goods.chatCnt ?? '0',
                                   style: TextStyle(fontSize: 14),
                                 ),
                                 SvgPicture.asset(
