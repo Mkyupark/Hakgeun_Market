@@ -13,8 +13,23 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 // 메인 페이지로 상품을 추가하는 양식을 포함합니다.
-class AddGoodsPage extends StatelessWidget {
-  const AddGoodsPage({super.key});
+class EditGoodsPage extends StatefulWidget {
+  final Goods? goods;
+  const EditGoodsPage({super.key, this.goods});
+
+  @override
+  State<EditGoodsPage> createState() => _temp();
+}
+
+class _temp extends State<EditGoodsPage> {
+  late Goods? goods;
+
+  @override
+  void initState() {
+    super.initState();
+    goods = widget.goods;
+    // initState에서 초기화
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,25 +44,26 @@ class AddGoodsPage extends StatelessWidget {
           },
         ),
       ),
-      body: const AddGoodsForm(),
+      body: EditGoodsForm(goods: goods),
     );
   }
 }
 
 // 상품 정보를 입력하는 양식 위젯입니다.
-class AddGoodsForm extends StatefulWidget {
-  const AddGoodsForm({super.key});
+class EditGoodsForm extends StatefulWidget {
+  final Goods? goods;
+  const EditGoodsForm({super.key, required this.goods});
 
   @override
   _AddGoodsFormState createState() => _AddGoodsFormState();
 }
 
-class _AddGoodsFormState extends State<AddGoodsForm> {
+class _AddGoodsFormState extends State<EditGoodsForm> {
   XFile? _image;
   String userId = FirebaseAuth.instance.currentUser!.uid;
   final ImagePicker picker = ImagePicker();
   final UserService userService = UserService();
-  late String firstCate = "기타";
+  late String firstCate = widget.goods?.category ?? "기타";
   final List<String> temp = ["가구", "의류", "전자기기", "주방용품", "기타"];
   final List<String> schools = [
     "금오공과대학교",
@@ -70,7 +86,9 @@ class _AddGoodsFormState extends State<AddGoodsForm> {
   final TextEditingController _itemDescriptionController =
       TextEditingController();
   final TextEditingController _priceController = TextEditingController();
-  late String _location = "기타";
+  final TextEditingController _locationController = TextEditingController();
+  final TextEditingController _categoryController = TextEditingController();
+  late String _location = widget.goods!.category ?? "금오공과대학교";
   @override
   void dispose() {
     _itemNameController.dispose();
@@ -79,16 +97,24 @@ class _AddGoodsFormState extends State<AddGoodsForm> {
     super.dispose();
   }
 
+  @override
+  void initState() {
+    super.initState();
+    _itemNameController.text = widget.goods!.title;
+    _itemDescriptionController.text = widget.goods?.content ?? "";
+    _priceController.text = widget.goods!.price;
+    _locationController.text = widget.goods!.loc ?? "금오공과대학교";
+    _categoryController.text = widget.goods!.category;
+  }
+
   void register() async {
     final goodsService = GoodsService();
 
-    // String number = FirebaseFirestore.instance.collection('goods').doc().id;
-    String number = Random().nextInt(100000).toString();
+    String number = FirebaseFirestore.instance.collection('goods').doc().id;
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     final user = userProvider.user;
-
     final goods = Goods(
-        id: number,
+        id: widget.goods?.id,
         photoList: [],
         saler: user!.nickName,
         buyer: null,
@@ -102,7 +128,7 @@ class _AddGoodsFormState extends State<AddGoodsForm> {
         updateTime: Timestamp.now(),
         category: firstCate);
 
-    await goodsService.CreateGoods(goods);
+    await goodsService.updateGoodsModel(goods);
     // App 화면으로 이동
     Navigator.pushReplacement(
       context,
@@ -114,8 +140,8 @@ class _AddGoodsFormState extends State<AddGoodsForm> {
   Widget deleteButton(String goodsid) {
     final goodsService = GoodsService();
     return ElevatedButton(
-      onPressed: () async {
-        await goodsService.delGoodsModel(goodsid);
+      onPressed: () {
+        goodsService.delGoodsModel(goodsid);
       },
       style: ElevatedButton.styleFrom(primary: const Color(0xFF2DB400)),
       child: const SizedBox(
@@ -127,17 +153,6 @@ class _AddGoodsFormState extends State<AddGoodsForm> {
       ),
     );
   }
-
-  // 유저 정보와 만든사람이 일치하는지 확인
-  // 이 함수 detail에서 판별해서 넘겨줘야할듯
-  // 어차피 상품이 일치하지않으면 수정 권한도 없기 때문에 delete버튼만 추가하면 될듯.
-  // bool checkUserToGoods(Goods goods) {
-  //   String username = goods.username;
-  //   if (userData == userId)
-  //     return true;
-  //   else
-  //     return false;
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -161,6 +176,9 @@ class _AddGoodsFormState extends State<AddGoodsForm> {
             TextField(
               controller: _itemNameController,
               onChanged: (value) {
+                // if (widget.goods != null) {
+                //   _itemNameController.text = widget.goods!.title;
+                // }
                 // setState(() => item?.title = value);
               },
               decoration: const InputDecoration(
@@ -183,7 +201,7 @@ class _AddGoodsFormState extends State<AddGoodsForm> {
             ),
             const SizedBox(height: 20), // 여백 추가
             DropdownButtonFormField<String>(
-              value: "금오공과대학교",
+              value: _locationController.text,
               items: schools.map((school) {
                 return DropdownMenuItem<String>(
                   value: school,
@@ -223,7 +241,7 @@ class _AddGoodsFormState extends State<AddGoodsForm> {
             ),
             const SizedBox(height: 10.0),
             DropdownButtonFormField<String>(
-              value: firstCate,
+              value: _categoryController.text,
               items: temp.map((category) {
                 return DropdownMenuItem<String>(
                   value: category,
