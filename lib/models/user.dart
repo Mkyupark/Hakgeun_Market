@@ -6,7 +6,7 @@ class UserModel {
   final String nickName;
   final String schoolName;
   final double mannerTemperature;
-  final List<String>? likeList;
+  late final List<dynamic>? likeList;
 
   UserModel({
     required this.id,
