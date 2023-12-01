@@ -7,7 +7,9 @@ import 'package:hakgeun_market/pages/Goods/edit_goods.dart';
 import 'package:hakgeun_market/pages/app.dart';
 import 'package:hakgeun_market/provider/user_provider.dart';
 import 'package:hakgeun_market/service/goodsService.dart';
+import 'package:hakgeun_market/service/userService.dart';
 import 'package:hakgeun_market/pages/chatroom/chatroom.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class Detail extends StatefulWidget {
@@ -25,10 +27,14 @@ class Detail extends StatefulWidget {
 class _DetailState extends State<Detail> {
   late Goods? goodsData;
   late List<Goods> goodsList;
+  late String selectedCategory = "전체";
+  late String currentDetail;
   final UserProvider _userProvider = UserProvider();
   final goodsService = GoodsService();
   var isLoading = true;
-  bool isHeartOn = false;
+  late bool isHeartOn;
+  late bool isSoldOut;
+  late int likeCount;
 
 // 채팅방 이름 생성을 도와주는 함수
   String _generateChatRoomName(String nickName1, String nickName2) {
@@ -109,9 +115,16 @@ Future<bool> _AddChatCnt()async{
   void initState() {
     // 위젯이 생성될 때 Firebase에서 데이터를 가져옴.(상태초기화)
     super.initState();
+    UserModel? currentUser = _userProvider.user;
+    if (currentUser?.likeList?.contains(widget.goods.id) ?? false) {
+      isHeartOn = true;
+    } else {
+      isHeartOn = false;
+    }
+    isSoldOut = false;
+    likeCount = int.parse(widget.goods.likeCnt ?? "0");
     goodsData = widget.goods;
     goodsList = widget.goodsDataList;
-    print(widget.goods.id);
   }
 
   // 앱 바 위젯 생성 함수
@@ -250,10 +263,10 @@ Future<bool> _AddChatCnt()async{
                         ),
                       ),
                       Text(
-                        goodsData!.loc ?? "",
+                        goodsData!.loc ?? "금오공과대학교",
                         style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
+                          color: Colors.grey,
+                          fontSize: 13,
                         ),
                       ),
                     ],
@@ -408,7 +421,7 @@ Future<bool> _AddChatCnt()async{
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  "판매자님의 판매 상품",
+                  "이 글과 함께 봤어요",
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
@@ -434,6 +447,18 @@ Future<bool> _AddChatCnt()async{
   Widget _bottomBarWidget() {
     UserModel? currentUser = _userProvider.user;
 
+    void addLikeList() async {
+      await UserService().updateUser(currentUser!);
+    }
+
+    void delLikeList() async {
+      await UserService().updateUser(currentUser!);
+    }
+
+    if (goodsData!.buyer != null) {
+      isSoldOut = true;
+    }
+
     return Container(
       width: 50,
       padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -444,31 +469,41 @@ Future<bool> _AddChatCnt()async{
           GestureDetector(
             onTap: () {
               if (isHeartOn == false) {
+                currentUser?.likeList?.add(goodsData?.id ?? "");
+                addLikeList(); // 사용자 정보 업데이트
                 setState(() {
-                  isHeartOn = !isHeartOn;
+                  updateLikeCount(true); // LikeCnt 증가 함수
+                  isHeartOn = !isHeartOn; // 좋아요 상태 변경
                 });
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                   content: const Text("관심목록에 등록되었습니다."),
-                  duration: const Duration(seconds: 2),
+                  duration: const Duration(seconds: 1),
                   action: SnackBarAction(
                     label: '취소',
                     onPressed: () {
+                      // 취소 로직
+                      delLikeList(); // 좋아요 제거
                       setState(() {
-                        isHeartOn = !isHeartOn;
+                        updateLikeCount(false); // LikeCnt 감소
+                        isHeartOn = !isHeartOn; // 좋아요 상태 변경
                       });
-                    }, //버튼 눌렀을때.
+                    }, // 버튼 눌렀을때.
                   ),
                 ));
               } else {
+                // 관심목록 제거
+                currentUser?.likeList?.remove(goodsData?.id);
+                delLikeList();
+                setState(() {
+                  updateLikeCount(false);
+                  isHeartOn = !isHeartOn;
+                });
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text("관심목록에서 해제했습니다."),
-                    duration: Duration(seconds: 3),
+                    duration: Duration(seconds: 1),
                   ),
                 );
-                setState(() {
-                  isHeartOn = !isHeartOn;
-                });
               }
             },
             child: SvgPicture.asset(
@@ -566,12 +601,19 @@ Future<bool> _AddChatCnt()async{
     );
   }
 
-
   // 메인 바디 위젯 생성 함수
   Widget _bodyWidget() {
     // if (isLoading) {
     //   return Center(child: CircularProgressIndicator());
     // }
+    currentDetail = goodsData!.id ?? "";
+    selectedCategory = goodsData!.category;
+    List<Goods> filteredGoods = widget.goodsDataList
+        .where((goods) =>
+            goods.category == selectedCategory && currentDetail != goods.id)
+        .take(6)
+        .toList();
+    print(widget.goods.toString());
 
     return CustomScrollView(slivers: [
       SliverList(
@@ -593,19 +635,13 @@ Future<bool> _AddChatCnt()async{
               crossAxisCount: 2, mainAxisSpacing: 10, crossAxisSpacing: 10),
           delegate: SliverChildBuilderDelegate(
             (BuildContext context, int index) {
+              Goods goods = filteredGoods[index];
               // goodsDataList에서 각 아이템 가져오기
-              if (widget.goodsDataList == null ||
-                  index >= widget.goodsDataList.length) {
+              if (filteredGoods == null || index >= filteredGoods.length) {
                 // goodsDataList가 null이거나 인덱스가 범위를 벗어날 경우 에러 방지
                 return Container();
               }
-              Goods goods = widget.goodsDataList[index];
-
-              // if (goods.photoList == null || goods.photoList!.isEmpty) {
-              //   // photoList가 null이거나 비어 있을 경우 에러 방지
-              //   return Container();
-              // }
-
+              //if( firebase에서 갖고온 goods.category  == goods.category){
               return InkWell(
                 onTap: () {
                   Navigator.push(
@@ -646,7 +682,10 @@ Future<bool> _AddChatCnt()async{
                         style: const TextStyle(fontSize: 14),
                       ),
                       Text(
-                        "${goods.price}원",
+                        int.parse(goodsData!.price)! <= 0
+                                ? '무료나눔'
+                                : NumberFormat('###,###,###.###원')
+                                    .format(int.parse(goodsData!.price)),
                         style: const TextStyle(
                             fontSize: 14, fontWeight: FontWeight.bold),
                       ),
@@ -654,8 +693,12 @@ Future<bool> _AddChatCnt()async{
                   ),
                 ),
               );
+              // if (goods.photoList == null || goods.photoList!.isEmpty) {
+              //   // photoList가 null이거나 비어 있을 경우 에러 방지
+              //   return Container();
+              // }
             },
-            childCount: widget.goodsDataList?.length ?? 0,
+            childCount: filteredGoods.length,
           ),
         ),
       ),
@@ -669,5 +712,26 @@ Future<bool> _AddChatCnt()async{
         appBar: _appbarWidget(),
         body: _bodyWidget(),
         bottomNavigationBar: _bottomBarWidget());
+  }
+
+  void updateLikeCount(bool increment) {
+    setState(() {
+      if (increment) {
+        likeCount++;
+      } else {
+        if (likeCount > 0) likeCount--;
+      }
+      setState(() {
+        goodsData?.likeCnt = likeCount.toString(); // Goods 객체의 likeCnt도 업데이트
+      });
+    });
+    updateGoodsLikeCount();
+  }
+
+  void updateGoodsLikeCount() async {
+    if (goodsData != null) {
+      await goodsService
+          .updateGoodsModel(goodsData!); // GoodsService를 사용하여 업데이트
+    }
   }
 }
