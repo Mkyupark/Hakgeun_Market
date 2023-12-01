@@ -89,7 +89,7 @@ Widget build(BuildContext context) {
         if (snapshot.connectionState == ConnectionState.done) {
           DocumentSnapshot documentSnapshot = snapshot.data as DocumentSnapshot;
 
-          String buyer = documentSnapshot['buyer'] ?? ""; // Get the 'buyer' field, default to empty string if null
+          String buyer = documentSnapshot['buyer'] ?? null; // Get the 'buyer' field, default to empty string if null
 
           return Visibility(
             visible: currentUser.nickName == documentSnapshot['saler'],
