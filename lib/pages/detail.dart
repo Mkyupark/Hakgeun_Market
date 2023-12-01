@@ -455,7 +455,7 @@ Future<bool> _AddChatCnt()async{
       await UserService().updateUser(currentUser!);
     }
 
-    if (goodsData!.buyer != null) {
+    if (goodsData!.buyer != "") {
       isSoldOut = true;
     }
 
@@ -556,7 +556,16 @@ Future<bool> _AddChatCnt()async{
                             .grey // Change the color to grey if usernames match, 판매완료시에도 바꿈.
                         : Colors.green, // Use green otherwise
                   ),
-                  child: GestureDetector(
+                  child: isSoldOut
+                      ? const Text(
+                          "판매완료",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            fontSize: 16,
+                          ),
+                        )
+                        :GestureDetector(
                     onTap: goodsData!.saler == currentUser!.nickName
                         ? null // Disable onTap if usernames match
                         : () async {
