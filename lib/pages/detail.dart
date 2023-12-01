@@ -447,15 +447,11 @@ Future<bool> _AddChatCnt()async{
   Widget _bottomBarWidget() {
     UserModel? currentUser = _userProvider.user;
 
-    void addLikeList() async {
+    void updateLikeList() async {
       await UserService().updateUser(currentUser!);
     }
 
-    void delLikeList() async {
-      await UserService().updateUser(currentUser!);
-    }
-
-    if (goodsData!.buyer != "") {
+    if (goodsData!.buyer != null) {
       isSoldOut = true;
     }
 
@@ -470,7 +466,7 @@ Future<bool> _AddChatCnt()async{
             onTap: () {
               if (isHeartOn == false) {
                 currentUser?.likeList?.add(goodsData?.id ?? "");
-                addLikeList(); // 사용자 정보 업데이트
+                updateLikeList(); // 사용자 정보 업데이트
                 setState(() {
                   updateLikeCount(true); // LikeCnt 증가 함수
                   isHeartOn = !isHeartOn; // 좋아요 상태 변경
@@ -482,7 +478,8 @@ Future<bool> _AddChatCnt()async{
                     label: '취소',
                     onPressed: () {
                       // 취소 로직
-                      delLikeList(); // 좋아요 제거
+                      currentUser?.likeList?.remove(goodsData?.id);
+                      updateLikeList(); // 좋아요 제거
                       setState(() {
                         updateLikeCount(false); // LikeCnt 감소
                         isHeartOn = !isHeartOn; // 좋아요 상태 변경
@@ -493,7 +490,7 @@ Future<bool> _AddChatCnt()async{
               } else {
                 // 관심목록 제거
                 currentUser?.likeList?.remove(goodsData?.id);
-                delLikeList();
+                updateLikeList();
                 setState(() {
                   updateLikeCount(false);
                   isHeartOn = !isHeartOn;
