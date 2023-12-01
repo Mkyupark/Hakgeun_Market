@@ -28,7 +28,6 @@ class ProfilePage extends State<ProfileScreen> {
     List<Goods>? searchData;
     final GoodsService goodsService = GoodsService();
     if (user != null) {
-      navProvider.updatePage(3);
       return Scaffold(
         body: ListView(
           children: <Widget>[

@@ -526,7 +526,10 @@ Future<bool> _AddChatCnt()async{
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "${goodsData!.price}원",
+                int.parse(goodsData!.price)! <= 0
+                                ? '무료나눔'
+                                : NumberFormat('###,###,###.###원')
+                                    .format(int.parse(goodsData!.price)),
                 style: const TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.bold,
@@ -547,13 +550,14 @@ Future<bool> _AddChatCnt()async{
                       const EdgeInsets.symmetric(horizontal: 20, vertical: 7),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(5),
-                    color: goodsData!.saler == currentUser!.nickName
+                    color: isSoldOut ||
+                            goodsData!.saler == currentUser!.nickName
                         ? Colors
-                            .grey // Change the color to grey if usernames match
+                            .grey // Change the color to grey if usernames match, 판매완료시에도 바꿈.
                         : Colors.green, // Use green otherwise
                   ),
                   child: GestureDetector(
-                    onTap: goodsData!.saler == currentUser.nickName
+                    onTap: goodsData!.saler == currentUser!.nickName
                         ? null // Disable onTap if usernames match
                         : () async {
                             // Your existing onTap logic here
@@ -735,3 +739,4 @@ Future<bool> _AddChatCnt()async{
     }
   }
 }
+

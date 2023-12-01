@@ -69,19 +69,24 @@ class Goods {
       : this.fromJson(snapshot.data());
 
   factory Goods.fromDocumentSnapshot(DocumentSnapshot doc) {
+    Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+
     return Goods(
-        id: doc['id'],
-        photoList: doc['photoList'].cast<String>(),
-        saler: doc['saler'],
-        buyer: doc['buyer'],
-        title: doc['title'],
-        content: doc['content'],
-        price: doc['price'], // 또는 json['price'].toInt() 등으로 수정
-        loc: doc['loc'],
-        likeCnt: doc['likeCnt'],
-        chatCnt: doc['chatcnt'],
-        uploadTime: doc['uploadTime'],
-        updateTime: doc['updateTime'],
-        category: doc['category']);
+      id: data.containsKey('id') ? data['id'] : null,
+      photoList: data.containsKey('photoList')
+          ? List<String>.from(data['photoList'])
+          : [],
+      saler: data.containsKey('saler') ? data['saler'] : null,
+      buyer: data.containsKey('buyer') ? data['buyer'] : null,
+      title: data.containsKey('title') ? data['title'] : '',
+      content: data.containsKey('content') ? data['content'] : null,
+      price: data.containsKey('price') ? data['price'] : '',
+      loc: data.containsKey('loc') ? data['loc'] : null,
+      likeCnt: data.containsKey('likeCnt') ? data['likeCnt'] : null,
+      chatCnt: data.containsKey('chatCnt') ? data['chatCnt'] : null,
+      uploadTime: data.containsKey('uploadTime') ? data['uploadTime'] : null,
+      updateTime: data.containsKey('updateTime') ? data['updateTime'] : null,
+      category: data.containsKey('category') ? data['category'] : '',
+    );
   }
 }

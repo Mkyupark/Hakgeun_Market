@@ -35,7 +35,9 @@ class UserModel {
       nickName: data['nickname'] ?? '이름없음',
       schoolName: data['schoolName'] ?? '정보없음',
       mannerTemperature: (data['mannerTemperature'] ?? 0).toDouble(),
-      likeList: data['likeList'] ?? [],
+      likeList: (data['likeList'] is List)
+          ? List<String>.from(data['likeList'].map((item) => item.toString()))
+          : null,
     );
   }
 }

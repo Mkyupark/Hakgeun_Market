@@ -1,3 +1,5 @@
+// ignore_for_file: non_constant_identifier_names
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:hakgeun_market/models/goods.dart';
 
@@ -119,6 +121,9 @@ class GoodsService {
   Future<Goods> FindGoodsById(String id) async {
     QuerySnapshot<Map<String, dynamic>> querySnapshot =
         await _db.collection('goods').where('id', isEqualTo: id).get();
+
+    print("querySnapshot");
+    print(querySnapshot.docs.first.exists);
     Goods fireModel = Goods.fromDocumentSnapshot(querySnapshot.docs.first);
     return fireModel;
   }
