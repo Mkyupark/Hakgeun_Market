@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -86,10 +87,11 @@ class _AddGoodsFormState extends State<AddGoodsForm> {
     String number = Random().nextInt(100000).toString();
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     final user = userProvider.user;
-
+    String imageBase64 =
+        goodsService.imageToBase64(await _image!.readAsBytes());
     final goods = Goods(
         id: number,
-        photoList: [],
+        photoList: [imageBase64],
         saler: user!.nickName,
         buyer: null,
         title: _itemNameController.text,
@@ -146,8 +148,9 @@ class _AddGoodsFormState extends State<AddGoodsForm> {
         child: ListView(
           children: <Widget>[
             IconButton(
-              iconSize: 80,
-              icon: const Icon(Icons.camera_alt, size: 50),
+              icon: _image != null
+                  ? Image.file(File(_image!.path), height: 80, width: 80)
+                  : const Icon(Icons.camera_alt, size: 50),
               onPressed: () {
                 // 이미지 선택 기능 구현
                 getImage(ImageSource.gallery);

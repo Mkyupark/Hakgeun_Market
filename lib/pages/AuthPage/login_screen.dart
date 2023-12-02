@@ -108,6 +108,8 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  bool _loading = false; // Add this variable to track loading state
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -164,20 +166,33 @@ class _LoginScreenState extends State<LoginScreen> {
               width: double.infinity,
               height: 40.0,
               child: ElevatedButton(
-                onPressed: _isOTPSent
-                    ? _phoneController.text.isNotEmpty &&
-                            _otpController.text.isNotEmpty
-                        ? _signInWithOTP
-                        : null
-                    : _phoneController.text.isNotEmpty
-                        ? _verifyPhoneNumber
-                        : null,
+                onPressed: _loading
+                    ? null
+                    : (_isOTPSent
+                        ? _phoneController.text.isNotEmpty &&
+                                _otpController.text.isNotEmpty
+                            ? _signInWithOTP
+                            : null
+                        : _phoneController.text.isNotEmpty
+                            ? () async {
+                                setState(() {
+                                  _loading = true;
+                                });
+                                _verifyPhoneNumber();
+                                setState(() {
+                                  _loading = false;
+                                });
+                              }
+                            : null),
                 style: ElevatedButton.styleFrom(
                   onSurface: const Color(0xFF2DB400),
-                  primary:
-                      const Color(0xFF2DB400), // Color when button is disabled
+                  primary: const Color(0xFF2DB400),
                 ),
-                child: Text(_isOTPSent ? '인증하기' : '인증문자 받기'),
+                child: _loading
+                    ? const CircularProgressIndicator(
+                        color: Colors.white,
+                      )
+                    : Text(_isOTPSent ? '인증하기' : '인증문자 받기'),
               ),
             ),
           ],

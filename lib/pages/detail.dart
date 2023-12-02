@@ -43,22 +43,25 @@ class _DetailState extends State<Detail> {
 
     return "${nicknames[0]}_${nicknames[1]}";
   }
-Future<bool> _AddChatCnt()async{
-  try{
-    QuerySnapshot<Object?> querySnapshot = await FirebaseFirestore.instance
-    .collection('goods')
-    .where('id', isEqualTo: goodsData!.id)
-    .get();
-       DocumentReference<Object?> documentReference = querySnapshot.docs[0].reference;
-    await documentReference.update({
-      'chatCnt':(int.parse(goodsData!.chatCnt!)+1).toString(),
-    });
-    return true;
-  }catch(e){
-    print("조회수 증가 오류 발생: $e");
-    return false;
+
+  Future<bool> _AddChatCnt() async {
+    try {
+      QuerySnapshot<Object?> querySnapshot = await FirebaseFirestore.instance
+          .collection('goods')
+          .where('id', isEqualTo: goodsData!.id)
+          .get();
+      DocumentReference<Object?> documentReference =
+          querySnapshot.docs[0].reference;
+      await documentReference.update({
+        'chatCnt': (int.parse(goodsData!.chatCnt!) + 1).toString(),
+      });
+      return true;
+    } catch (e) {
+      print("조회수 증가 오류 발생: $e");
+      return false;
+    }
   }
-}
+
 // 채팅방이 이미 존재하는지 확인하는 함수
   Future<bool> _checkIfChatRoomExists(String chatRoomName) async {
     try {
@@ -78,8 +81,8 @@ Future<bool> _AddChatCnt()async{
   }
 
 // 채팅방을 생성하는 함수
-  Future<void> _createChatRoom(
-      String chatRoomName, String rname, String uid1, String uid2,String id) async {
+  Future<void> _createChatRoom(String chatRoomName, String rname, String uid1,
+      String uid2, String id) async {
     try {
       // Firestore에서 chatRooms 컬렉션에 새 문서를 생성합니다.
       DocumentReference chatRoomRef =
@@ -90,7 +93,7 @@ Future<bool> _AddChatCnt()async{
         'rname': rname,
         'uid1': uid1,
         'uid2': uid2,
-        'id':goodsData!.id,
+        'id': goodsData!.id,
       });
 
       // "messages" 서브컬렉션을 추가합니다.
@@ -162,8 +165,8 @@ Future<bool> _AddChatCnt()async{
     String imageUrl = goodsData!.photoList![0];
     return Container(
         width: double.infinity,
-        child: Image.asset(
-          imageUrl,
+        child: Image.memory(
+          goodsService.base64StringToImage(imageUrl),
           width: 100,
           height: 300,
           fit: BoxFit.fill,
@@ -524,9 +527,9 @@ Future<bool> _AddChatCnt()async{
             children: [
               Text(
                 int.parse(goodsData!.price)! <= 0
-                                ? '무료나눔'
-                                : NumberFormat('###,###,###.###원')
-                                    .format(int.parse(goodsData!.price)),
+                    ? '무료나눔'
+                    : NumberFormat('###,###,###.###원')
+                        .format(int.parse(goodsData!.price)),
                 style: const TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.bold,
@@ -562,46 +565,47 @@ Future<bool> _AddChatCnt()async{
                             fontSize: 16,
                           ),
                         )
-                        :GestureDetector(
-                    onTap: goodsData!.saler == currentUser!.nickName
-                        ? null // Disable onTap if usernames match
-                        : () async {
-                            // Your existing onTap logic here
-                            String chatRoomName = _generateChatRoomName(
-                                goodsData!.saler ?? "NULL",
-                                currentUser!.nickName);
-                            bool roomExists =
-                                await _checkIfChatRoomExists(chatRoomName);
-                            if (!roomExists) {
-                              await _createChatRoom(
-                                  chatRoomName,
-                                  chatRoomName,
-                                  goodsData!.saler ?? "",
-                                  currentUser.nickName,
-                                  goodsData!.id??"",
+                      : GestureDetector(
+                          onTap: goodsData!.saler == currentUser!.nickName
+                              ? null // Disable onTap if usernames match
+                              : () async {
+                                  // Your existing onTap logic here
+                                  String chatRoomName = _generateChatRoomName(
+                                      goodsData!.saler ?? "NULL",
+                                      currentUser!.nickName);
+                                  bool roomExists =
+                                      await _checkIfChatRoomExists(
+                                          chatRoomName);
+                                  if (!roomExists) {
+                                    await _createChatRoom(
+                                      chatRoomName,
+                                      chatRoomName,
+                                      goodsData!.saler ?? "",
+                                      currentUser.nickName,
+                                      goodsData!.id ?? "",
+                                    );
+                                    await _AddChatCnt();
+                                  }
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) => ChatRoom(
+                                        rname: chatRoomName,
+                                        uid2: goodsData!.saler ?? "",
+                                        uid1: currentUser.nickName,
+                                        id: goodsData!.id!,
+                                      ),
+                                    ),
                                   );
-                            await _AddChatCnt();
-                            }
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) => ChatRoom(
-                                  rname: chatRoomName,
-                                  uid2: goodsData!.saler ?? "",
-                                  uid1: currentUser.nickName,
-                                  id:goodsData!.id!,
-                                ),
-                              ),
-                            );
-                          },
-                    child: const Text(
-                      "채팅으로 거래하기",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        fontSize: 16,
-                      ),
-                    ),
-                  ),
+                                },
+                          child: const Text(
+                            "채팅으로 거래하기",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
                 ),
               ],
             ),
@@ -672,8 +676,9 @@ Future<bool> _AddChatCnt()async{
                           height: 120,
                           child: goods.photoList != null &&
                                   goods.photoList!.isNotEmpty
-                              ? Image.asset(
-                                  goods.photoList![0],
+                              ? Image.memory(
+                                  goodsService
+                                      .base64StringToImage(goods.photoList![0]),
                                   width: 100,
                                   height: 100,
                                   fit: BoxFit.fill,
@@ -693,9 +698,9 @@ Future<bool> _AddChatCnt()async{
                       ),
                       Text(
                         int.parse(goodsData!.price)! <= 0
-                                ? '무료나눔'
-                                : NumberFormat('###,###,###.###원')
-                                    .format(int.parse(goodsData!.price)),
+                            ? '무료나눔'
+                            : NumberFormat('###,###,###.###원')
+                                .format(int.parse(goodsData!.price)),
                         style: const TextStyle(
                             fontSize: 14, fontWeight: FontWeight.bold),
                       ),
@@ -745,4 +750,3 @@ Future<bool> _AddChatCnt()async{
     }
   }
 }
-
