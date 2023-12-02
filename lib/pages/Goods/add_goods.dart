@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -147,8 +148,9 @@ class _AddGoodsFormState extends State<AddGoodsForm> {
         child: ListView(
           children: <Widget>[
             IconButton(
-              iconSize: 80,
-              icon: const Icon(Icons.camera_alt, size: 50),
+              icon: _image != null
+                  ? Image.file(File(_image!.path), height: 80, width: 80)
+                  : const Icon(Icons.camera_alt, size: 50),
               onPressed: () {
                 // 이미지 선택 기능 구현
                 getImage(ImageSource.gallery);
