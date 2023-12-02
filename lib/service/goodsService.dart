@@ -1,5 +1,8 @@
 // ignore_for_file: non_constant_identifier_names
 
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:hakgeun_market/models/goods.dart';
 
@@ -186,5 +189,13 @@ class GoodsService {
     }
 
     return goods;
+  }
+
+  Uint8List base64StringToImage(String base64String) {
+    return base64Decode(base64String);
+  }
+
+  String imageToBase64(Uint8List image) {
+    return base64Encode(image);
   }
 }

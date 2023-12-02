@@ -86,10 +86,11 @@ class _AddGoodsFormState extends State<AddGoodsForm> {
     String number = Random().nextInt(100000).toString();
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     final user = userProvider.user;
-
+    String imageBase64 =
+        goodsService.imageToBase64(await _image!.readAsBytes());
     final goods = Goods(
         id: number,
-        photoList: [],
+        photoList: [imageBase64],
         saler: user!.nickName,
         buyer: null,
         title: _itemNameController.text,
