@@ -31,10 +31,39 @@ class _DetailState extends State<Detail> {
   late String currentDetail;
   final UserProvider _userProvider = UserProvider();
   final goodsService = GoodsService();
+  final userService = UserService();
   var isLoading = true;
   late bool isHeartOn;
   late bool isSoldOut;
   late int likeCount;
+  late double mannergrade;
+  late int level;
+
+  final List<Color> gradeColors = [
+    Color(0xff072038),
+    Color(0xff0d3a65),
+    Color(0xff186ec0),
+    Color(0xff37b24d),
+    Color(0xffffad13),
+    Color(0xfff76707),
+  ];
+
+  int _calcTempLevel(double mannergrade) {
+    if (20 >= mannergrade) {
+      level = 0;
+    } else if (20 < mannergrade && 32 >= mannergrade) {
+      level = 1;
+    } else if (32 < mannergrade && 36.5 >= mannergrade) {
+      level = 2;
+    } else if (36.5 < mannergrade && 40 >= mannergrade) {
+      level = 3;
+    } else if (40 < mannergrade && 50 >= mannergrade) {
+      level = 4;
+    } else if (50 < mannergrade) {
+      level = 5;
+    }
+    return level;
+  }
 
 // 채팅방 이름 생성을 도와주는 함수
   String _generateChatRoomName(String nickName1, String nickName2) {
@@ -119,6 +148,7 @@ class _DetailState extends State<Detail> {
     // 위젯이 생성될 때 Firebase에서 데이터를 가져옴.(상태초기화)
     super.initState();
     UserModel? currentUser = _userProvider.user;
+
     if (currentUser?.likeList?.contains(widget.goods.id) ?? false) {
       isHeartOn = true;
     } else {
@@ -128,6 +158,8 @@ class _DetailState extends State<Detail> {
     likeCount = int.parse(widget.goods.likeCnt ?? "0");
     goodsData = widget.goods;
     goodsList = widget.goodsDataList;
+    mannergrade = _userProvider.user!.mannerTemperature;
+    level = _calcTempLevel(mannergrade);
   }
 
   // 앱 바 위젯 생성 함수
@@ -186,10 +218,10 @@ class _DetailState extends State<Detail> {
               children: [
                 Column(
                   children: [
-                    const Text(
-                      "36.5°C",
+                    Text(
+                      "${_userProvider.user!.mannerTemperature}°C",
                       style: TextStyle(
-                          color: Colors.green,
+                          color: gradeColors[level],
                           fontSize: 18,
                           fontWeight: FontWeight.bold),
                     ),
@@ -201,7 +233,7 @@ class _DetailState extends State<Detail> {
                             child: Row(
                               children: [
                                 Container(
-                                    height: 6, width: 40, color: Colors.green),
+                                    height: 6, width: 40, color: gradeColors[level]),
                               ],
                             )))
                   ],
@@ -210,7 +242,7 @@ class _DetailState extends State<Detail> {
             ),
           ),
           const Text(
-            "매너온도",
+            "매너학점",
             style: TextStyle(
               decoration: TextDecoration.underline,
               fontSize: 12,
@@ -223,19 +255,44 @@ class _DetailState extends State<Detail> {
   }
 
   Widget _tempset() {
-    return Container(
-        child: Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-      Row(
-        children: [
-          _temp(),
-          Container(
+  return TextButton(
+    onPressed: () {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("알림"),
+            content: Text("여기에 메시지를 입력하세요"),
+            actions: <Widget>[
+              TextButton(
+                child: Text("확인"),
+                onPressed: () {
+                  Navigator.of(context).pop(); // 다이얼로그 닫기
+                },
+              ),
+            ],
+          );
+        },
+      );
+    },
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Row(
+          children: [
+            _temp(), // 여기에는 _temp 위젯이 들어갑니다.
+            Container(
               width: 30,
               height: 30,
-              child: Image.asset("assets/images/level-3.jpg"))
-        ],
-      ),
-    ]));
-  }
+              child: Image.asset("assets/images/level-${level}.jpg"),
+            ),
+          ],
+        ),
+      ],
+    ),
+  );
+}
+
 
   // 판매자 정보와 매너 온도를 표시하는 위젯 생성 함수
   Widget _sellerSimpleInfo() {
@@ -244,7 +301,7 @@ class _DetailState extends State<Detail> {
       child: Row(
         children: [
           Expanded(
-              child: Stack(
+            child: Stack(
             children: [
               Positioned(
                   child: Row(
@@ -276,12 +333,13 @@ class _DetailState extends State<Detail> {
                   ),
                 ],
               )),
-              Positioned(right: 0, child: _tempset())
+              Positioned(right: 0, child: _tempset(), 
+              ),
             ],
           )),
         ],
       ),
-    );
+      );
   }
 
   // 구분선 생성 함수
