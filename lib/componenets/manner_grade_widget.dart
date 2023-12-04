@@ -15,24 +15,24 @@ class MannerGrade extends StatefulWidget {
 }
 
 class _MannerGradeState extends State<MannerGrade> {
-  late double mannergrade;
+  late double mannertemp;
   late int level;
   final List<String>_rating = ["-4", "-2", "0", "2", "4"];
   String? _select = "0";
 
   void _calcTempLevel() {
     setState(() {
-      if (1 >= mannergrade) {
+      if (1 >= mannertemp) {
         level = 0;
-      } else if (1 < mannergrade && 1.5 >= mannergrade) {
+      } else if (1 < mannertemp && 1.5 >= mannertemp) {
         level = 1;
-      } else if (1.5 < mannergrade && 2.0 >= mannergrade) {
+      } else if (1.5 < mannertemp && 2.0 >= mannertemp) {
         level = 2;
-      } else if (2.0 < mannergrade && 3.0 >= mannergrade) {
+      } else if (2.0 < mannertemp && 3.0 >= mannertemp) {
         level = 3;
-      } else if (3.0 < mannergrade && 4.0 >= mannergrade) {
+      } else if (3.0 < mannertemp && 4.0 >= mannertemp) {
         level = 4;
-      } else if (4.0 < mannergrade) {
+      } else if (4.0 < mannertemp) {
         level = 5;
       }
     });
@@ -51,16 +51,36 @@ class _MannerGradeState extends State<MannerGrade> {
   void initState() {
     // 위젯이 생성될 때 Firebase에서 데이터를 가져옴.(상태초기화)
     super.initState();
-    mannergrade = 3.0;
+    mannertemp = 3.0;
     _calcTempLevel();
   }
 
-  void _updateMannerGrade(String selectedValue) {
+  void _updateMannerTemp(String selectedValue) {
     setState(() {
       _select = selectedValue;
-      mannergrade += double.parse(selectedValue) / 4.5;
+      mannertemp += double.parse(selectedValue) / 4.5;
+      if(mannertemp < 0){
+        mannertemp = 0;
+      }
+      else if(mannertemp > 4.5){
+        mannertemp = 4.5;
+      }
       _calcTempLevel();
     });
+    updateTemperature();
+  }
+
+
+  void updateTemperature() async {
+  String userId = '양준석';
+  double newTemperature = mannertemp; // 새로운 매너 온도 값
+
+  try {
+    await UserService().updateUserMannerTemperature(userId as UserModel, newTemperature);
+    print('매너 온도가 성공적으로 업데이트되었습니다.');
+  } catch (e) {
+    print('매너 온도 업데이트 중 오류 발생: $e');
+  }
   }
 
   Widget _temp(final select) {
@@ -100,7 +120,7 @@ class _MannerGradeState extends State<MannerGrade> {
                   TextButton(
                     child: Text("확인"),
                     onPressed: () {
-                      _updateMannerGrade(_select!);
+                      _updateMannerTemp(_select!);
                       Navigator.of(context).pop(); // 다이얼로그 닫기
                     },
                   ),
@@ -117,7 +137,7 @@ class _MannerGradeState extends State<MannerGrade> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            "매너학점: ${mannergrade.toInt()}",
+            "매너온도: ${mannertemp.toInt()}",
             style: TextStyle(
               color: gradeColors[level],
               fontSize: 14,
@@ -133,7 +153,7 @@ class _MannerGradeState extends State<MannerGrade> {
                 children: [
                   Container(
                     height: 6,
-                    width: 70 / 4.5 * mannergrade,
+                    width: 70 / 4.5 * mannertemp,
                     color: gradeColors[level]
                   ),
                 ],
@@ -158,7 +178,7 @@ class _MannerGradeState extends State<MannerGrade> {
             children: [
               _temp(_select),
               SizedBox(width: 7),
-              _gradeIcon(),
+              _tempIcon(),
             ],
           ),
         ],
@@ -166,7 +186,7 @@ class _MannerGradeState extends State<MannerGrade> {
     );
   }
 
-  Widget _gradeIcon() {
+  Widget _tempIcon() {
     return Container(
       width: 30,
       height: 30,
