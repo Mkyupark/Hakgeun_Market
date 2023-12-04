@@ -89,14 +89,14 @@ Widget build(BuildContext context) {
         if (snapshot.connectionState == ConnectionState.done) {
           DocumentSnapshot documentSnapshot = snapshot.data as DocumentSnapshot;
 
-          String buyer = documentSnapshot['buyer'] ?? null; // Get the 'buyer' field, default to empty string if null
+          dynamic buyer = documentSnapshot['buyer'] ?? ""; // Get the 'buyer' field, default to empty string if null
 
           return Visibility(
             visible: currentUser.nickName == documentSnapshot['saler'],
             child: Container(
               margin: const EdgeInsets.symmetric(horizontal: 8.0),
               child: ElevatedButton(
-                onPressed: isButtonClicked || buyer.isNotEmpty
+                onPressed: isButtonClicked || buyer!.isNotEmpty
                     ? null // Disable the button if it's already clicked or buyer is not empty
                     : () async {
                         String saler = documentSnapshot['saler'];

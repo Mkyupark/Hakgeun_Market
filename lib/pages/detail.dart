@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:hakgeun_market/componenets/manner_grade_widget.dart';
 import 'package:hakgeun_market/models/goods.dart';
 import 'package:hakgeun_market/models/user.dart';
 import 'package:hakgeun_market/pages/Goods/edit_goods.dart';
@@ -36,41 +37,13 @@ class _DetailState extends State<Detail> {
   late bool isHeartOn;
   late bool isSoldOut;
   late int likeCount;
-  late double mannergrade;
-  late int level;
-
-  final List<Color> gradeColors = [
-    Color(0xff072038),
-    Color(0xff0d3a65),
-    Color(0xff186ec0),
-    Color(0xff37b24d),
-    Color(0xffffad13),
-    Color(0xfff76707),
-  ];
-
-  int _calcTempLevel(double mannergrade) {
-    if (20 >= mannergrade) {
-      level = 0;
-    } else if (20 < mannergrade && 32 >= mannergrade) {
-      level = 1;
-    } else if (32 < mannergrade && 36.5 >= mannergrade) {
-      level = 2;
-    } else if (36.5 < mannergrade && 40 >= mannergrade) {
-      level = 3;
-    } else if (40 < mannergrade && 50 >= mannergrade) {
-      level = 4;
-    } else if (50 < mannergrade) {
-      level = 5;
-    }
-    return level;
-  }
 
 // 채팅방 이름 생성을 도와주는 함수
   String _generateChatRoomName(String nickName1, String nickName2) {
     // 닉네임을 알파벳 순으로 정렬하여 일관된 순서를 보장합니다.
     List<String> nicknames = [nickName1, nickName2];
 
-    return "${nicknames[0]}_${nicknames[1]}";
+    return "${nicknames[0]}_${nicknames[1]}_${goodsData!.id}";
   }
 
   Future<bool> _AddChatCnt() async {
@@ -158,8 +131,6 @@ class _DetailState extends State<Detail> {
     likeCount = int.parse(widget.goods.likeCnt ?? "0");
     goodsData = widget.goods;
     goodsList = widget.goodsDataList;
-    mannergrade = _userProvider.user!.mannerTemperature;
-    level = _calcTempLevel(mannergrade);
   }
 
   // 앱 바 위젯 생성 함수
@@ -206,93 +177,6 @@ class _DetailState extends State<Detail> {
   }
 
   // 매너 온도 등을 표시하는 위젯 생성 함수
-  Widget _temp() {
-    return Container(
-      width: 60,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                Column(
-                  children: [
-                    Text(
-                      "${_userProvider.user!.mannerTemperature}°C",
-                      style: TextStyle(
-                          color: gradeColors[level],
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold),
-                    ),
-                    ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: Container(
-                            height: 6,
-                            color: Colors.black.withOpacity(0.2),
-                            child: Row(
-                              children: [
-                                Container(
-                                    height: 6, width: 40, color: gradeColors[level]),
-                              ],
-                            )))
-                  ],
-                )
-              ],
-            ),
-          ),
-          const Text(
-            "매너학점",
-            style: TextStyle(
-              decoration: TextDecoration.underline,
-              fontSize: 12,
-              color: Colors.grey,
-            ),
-          )
-        ],
-      ),
-    );
-  }
-
-  Widget _tempset() {
-  return TextButton(
-    onPressed: () {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text("알림"),
-            content: Text("여기에 메시지를 입력하세요"),
-            actions: <Widget>[
-              TextButton(
-                child: Text("확인"),
-                onPressed: () {
-                  Navigator.of(context).pop(); // 다이얼로그 닫기
-                },
-              ),
-            ],
-          );
-        },
-      );
-    },
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: [
-        Row(
-          children: [
-            _temp(), // 여기에는 _temp 위젯이 들어갑니다.
-            Container(
-              width: 30,
-              height: 30,
-              child: Image.asset("assets/images/level-${level}.jpg"),
-            ),
-          ],
-        ),
-      ],
-    ),
-  );
-}
-
 
   // 판매자 정보와 매너 온도를 표시하는 위젯 생성 함수
   Widget _sellerSimpleInfo() {
@@ -300,46 +184,36 @@ class _DetailState extends State<Detail> {
       padding: const EdgeInsets.all(15.0),
       child: Row(
         children: [
-          Expanded(
-            child: Stack(
+          CircleAvatar(
+            radius: 25,
+            backgroundImage: Image.asset("assets/images/user.png").image,
+          ),
+          const SizedBox(width: 10),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Positioned(
-                  child: Row(
-                children: [
-                  CircleAvatar(
-                    radius: 25,
-                    backgroundImage:
-                        Image.asset("assets/images/user.png").image,
-                  ),
-                  const SizedBox(width: 10),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        goodsData!.saler ?? "null",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                      Text(
-                        goodsData!.loc ?? "금오공과대학교",
-                        style: TextStyle(
-                          color: Colors.grey,
-                          fontSize: 13,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              )),
-              Positioned(right: 0, child: _tempset(), 
+              Text(
+                goodsData!.saler ?? "null",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+              Text(
+                goodsData!.loc ?? "금오공과대학교",
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontSize: 13,
+                ),
               ),
             ],
-          )),
+          ),
+          Expanded(child: MannerGrade(
+            mannergrade: 2.5
+            )),
         ],
       ),
-      );
+    );
   }
 
   // 구분선 생성 함수
@@ -630,7 +504,7 @@ class _DetailState extends State<Detail> {
                                   // Your existing onTap logic here
                                   String chatRoomName = _generateChatRoomName(
                                       goodsData!.saler ?? "NULL",
-                                      currentUser!.nickName);
+                                      currentUser.nickName);
                                   bool roomExists =
                                       await _checkIfChatRoomExists(
                                           chatRoomName);
