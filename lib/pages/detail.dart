@@ -624,9 +624,12 @@ class _DetailState extends State<Detail> {
                         ),
                       ),
                       const SizedBox(height: 7),
-                      Text(
-                        goods.title,
-                        style: const TextStyle(fontSize: 14),
+                      Expanded(
+                        child: 
+                          Text(
+                            goods.title,
+                            style: const TextStyle(fontSize: 14),
+                          ),
                       ),
                       Text(
                         int.parse(goodsData!.price)! <= 0

@@ -68,7 +68,7 @@ class _MannerGradeState extends State<MannerGrade> {
     onPressed: () {
       showDialog(
         context: context,
-        builder: (context) {
+        builder: (BuildContext context) {
           return StatefulBuilder(
             builder: (BuildContext context, StateSetter setState) {
               return AlertDialog(
@@ -76,9 +76,10 @@ class _MannerGradeState extends State<MannerGrade> {
                 content: Column(
                   mainAxisSize: MainAxisSize.min, 
                   children: <Widget>[
-                    Text("여러분의 만족도를 표현해주세요!"),
+                    Text("상품거래의 만족도를 표현해주세요!"),
                     DropdownButton<String>(
-                      value: select,
+                      value: null,
+                      hint: Text("5개의 평가 중 하나를 골라주세요!"),
                       icon: const Icon(Icons.arrow_drop_down),
                       elevation: 16,
                       onChanged: (String? value) {
@@ -99,7 +100,7 @@ class _MannerGradeState extends State<MannerGrade> {
                   TextButton(
                     child: Text("확인"),
                     onPressed: () {
-                      _updateMannerGrade(select!);
+                      _updateMannerGrade(_select!);
                       Navigator.of(context).pop(); // 다이얼로그 닫기
                     },
                   ),
