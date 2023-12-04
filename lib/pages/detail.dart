@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:hakgeun_market/componenets/manner_grade_widget.dart';
 import 'package:hakgeun_market/models/goods.dart';
 import 'package:hakgeun_market/models/user.dart';
 import 'package:hakgeun_market/pages/Goods/edit_goods.dart';
@@ -31,6 +32,7 @@ class _DetailState extends State<Detail> {
   late String currentDetail;
   final UserProvider _userProvider = UserProvider();
   final goodsService = GoodsService();
+  final userService = UserService();
   var isLoading = true;
   late bool isHeartOn;
   late bool isSoldOut;
@@ -119,6 +121,7 @@ class _DetailState extends State<Detail> {
     // 위젯이 생성될 때 Firebase에서 데이터를 가져옴.(상태초기화)
     super.initState();
     UserModel? currentUser = _userProvider.user;
+
     if (currentUser?.likeList?.contains(widget.goods.id) ?? false) {
       isHeartOn = true;
     } else {
@@ -174,68 +177,6 @@ class _DetailState extends State<Detail> {
   }
 
   // 매너 온도 등을 표시하는 위젯 생성 함수
-  Widget _temp() {
-    return Container(
-      width: 60,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                Column(
-                  children: [
-                    const Text(
-                      "36.5°C",
-                      style: TextStyle(
-                          color: Colors.green,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold),
-                    ),
-                    ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: Container(
-                            height: 6,
-                            color: Colors.black.withOpacity(0.2),
-                            child: Row(
-                              children: [
-                                Container(
-                                    height: 6, width: 40, color: Colors.green),
-                              ],
-                            )))
-                  ],
-                )
-              ],
-            ),
-          ),
-          const Text(
-            "매너온도",
-            style: TextStyle(
-              decoration: TextDecoration.underline,
-              fontSize: 12,
-              color: Colors.grey,
-            ),
-          )
-        ],
-      ),
-    );
-  }
-
-  Widget _tempset() {
-    return Container(
-        child: Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-      Row(
-        children: [
-          _temp(),
-          Container(
-              width: 30,
-              height: 30,
-              child: Image.asset("assets/images/level-3.jpg"))
-        ],
-      ),
-    ]));
-  }
 
   // 판매자 정보와 매너 온도를 표시하는 위젯 생성 함수
   Widget _sellerSimpleInfo() {
@@ -243,42 +184,33 @@ class _DetailState extends State<Detail> {
       padding: const EdgeInsets.all(15.0),
       child: Row(
         children: [
-          Expanded(
-              child: Stack(
+          CircleAvatar(
+            radius: 25,
+            backgroundImage: Image.asset("assets/images/user.png").image,
+          ),
+          const SizedBox(width: 10),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Positioned(
-                  child: Row(
-                children: [
-                  CircleAvatar(
-                    radius: 25,
-                    backgroundImage:
-                        Image.asset("assets/images/user.png").image,
-                  ),
-                  const SizedBox(width: 10),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        goodsData!.saler ?? "null",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                      Text(
-                        goodsData!.loc ?? "금오공과대학교",
-                        style: TextStyle(
-                          color: Colors.grey,
-                          fontSize: 13,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              )),
-              Positioned(right: 0, child: _tempset())
+              Text(
+                goodsData!.saler ?? "null",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+              Text(
+                goodsData!.loc ?? "금오공과대학교",
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontSize: 13,
+                ),
+              ),
             ],
-          )),
+          ),
+          Expanded(child: MannerGrade(
+            mannergrade: 2.5
+            )),
         ],
       ),
     );
@@ -572,7 +504,7 @@ class _DetailState extends State<Detail> {
                                   // Your existing onTap logic here
                                   String chatRoomName = _generateChatRoomName(
                                       goodsData!.saler ?? "NULL",
-                                      currentUser!.nickName);
+                                      currentUser.nickName);
                                   bool roomExists =
                                       await _checkIfChatRoomExists(
                                           chatRoomName);
@@ -692,9 +624,12 @@ class _DetailState extends State<Detail> {
                         ),
                       ),
                       const SizedBox(height: 7),
-                      Text(
-                        goods.title,
-                        style: const TextStyle(fontSize: 14),
+                      Expanded(
+                        child: 
+                          Text(
+                            goods.title,
+                            style: const TextStyle(fontSize: 14),
+                          ),
                       ),
                       Text(
                         int.parse(goodsData!.price)! <= 0

@@ -91,6 +91,7 @@ Widget build(BuildContext context) {
 
           String buyer = documentSnapshot['buyer'] ?? ""; // Get the 'buyer' field, default to empty string if null
 
+
           return Visibility(
             visible: currentUser.nickName == documentSnapshot['saler'],
             child: Container(
