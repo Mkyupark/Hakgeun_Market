@@ -37,11 +37,11 @@ class _DetailState extends State<Detail> {
   late int likeCount;
 
 // 채팅방 이름 생성을 도와주는 함수
-  String _generateChatRoomName(String nickName1, String nickName2) {
+   String _generateChatRoomName(String nickName1, String nickName2) {
     // 닉네임을 알파벳 순으로 정렬하여 일관된 순서를 보장합니다.
     List<String> nicknames = [nickName1, nickName2];
 
-    return "${nicknames[0]}_${nicknames[1]}";
+    return "${nicknames[0]}_${nicknames[1]}_${goodsData!.id}";
   }
 
   Future<bool> _AddChatCnt() async {
