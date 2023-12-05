@@ -227,7 +227,7 @@ class ProfilePage extends State<ProfileScreen> {
         children: [
           Row(
             children: [
-              const Text("학근 점수"),
+              const Text("매너온도"),
               const SizedBox(
                   width:
                       8.0), // Adjust the spacing between title and temperature
@@ -263,7 +263,7 @@ class ProfilePage extends State<ProfileScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('학근점수란?'),
+          title: const Text('매너온도란?'),
           content: const Text(
               '학근점수는 사용자의 활동에 기반한 평판 점수입니다.\n긍정적인 활동으로 학점이 상승하며, 부정적인 행동으로 하락합니다.'),
           actions: <Widget>[

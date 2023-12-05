@@ -67,21 +67,20 @@ class _MannerGradeState extends State<MannerGrade> {
       }
       _calcTempLevel();
     });
-    updateTemperature();
+    // updateTemperature();
   }
 
+  // void updateTemperature() async {
+  // String userId = '양준석';
+  // double newTemperature = mannertemp; // 새로운 매너 온도 값
 
-  void updateTemperature() async {
-  String userId = '양준석';
-  double newTemperature = mannertemp; // 새로운 매너 온도 값
-
-  try {
-    await UserService().updateUserMannerTemperature(userId as UserModel, newTemperature);
-    print('매너 온도가 성공적으로 업데이트되었습니다.');
-  } catch (e) {
-    print('매너 온도 업데이트 중 오류 발생: $e');
-  }
-  }
+  // try {
+  //   await UserService().updateUserMannerTemperature(userId as UserModel, newTemperature);
+  //   print('매너 온도가 성공적으로 업데이트되었습니다.');
+  // } catch (e) {
+  //   print('매너 온도 업데이트 중 오류 발생: $e');
+  // }
+  // }
 
   Widget _temp(final select) {
   return TextButton(
@@ -137,7 +136,7 @@ class _MannerGradeState extends State<MannerGrade> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            "매너온도: ${mannertemp.toInt()}",
+            "매너온도: ${mannertemp.toStringAsFixed(1)}",
             style: TextStyle(
               color: gradeColors[level],
               fontSize: 14,

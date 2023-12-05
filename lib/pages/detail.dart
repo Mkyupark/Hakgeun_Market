@@ -145,10 +145,6 @@ class _DetailState extends State<Detail> {
               Navigator.pop(context);
             },
             icon: const Icon(Icons.arrow_back)),
-        actions: [
-          IconButton(onPressed: () {}, icon: const Icon(Icons.share)),
-          IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert)),
-        ],
       ),
     );
   }
@@ -632,10 +628,10 @@ class _DetailState extends State<Detail> {
                           ),
                       ),
                       Text(
-                        int.parse(goodsData!.price)! <= 0
+                        int.parse(goods!.price)! <= 0
                             ? '무료나눔'
                             : NumberFormat('###,###,###.###원')
-                                .format(int.parse(goodsData!.price)),
+                                .format(int.parse(goods!.price)),
                         style: const TextStyle(
                             fontSize: 14, fontWeight: FontWeight.bold),
                       ),
