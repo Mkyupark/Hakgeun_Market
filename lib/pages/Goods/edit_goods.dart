@@ -130,9 +130,10 @@ class _AddGoodsFormState extends State<EditGoodsForm> {
 
     await goodsService.updateGoodsModel(goods);
     // App 화면으로 이동
-    Navigator.pushReplacement(
+    Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (context) => App()),
+      (route) => false,
     );
   }
 
