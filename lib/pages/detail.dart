@@ -39,7 +39,7 @@ class _DetailState extends State<Detail> {
   late int likeCount;
 
 // 채팅방 이름 생성을 도와주는 함수
-   String _generateChatRoomName(String nickName1, String nickName2) {
+  String _generateChatRoomName(String nickName1, String nickName2) {
     // 닉네임을 알파벳 순으로 정렬하여 일관된 순서를 보장합니다.
     List<String> nicknames = [nickName1, nickName2];
 
@@ -204,9 +204,7 @@ class _DetailState extends State<Detail> {
               ),
             ],
           ),
-          Expanded(child: MannerGrade(
-            mannergrade: 2.5
-            )),
+          Expanded(child: MannerGrade(mannergrade: 2.5)),
         ],
       ),
     );
@@ -273,11 +271,10 @@ class _DetailState extends State<Detail> {
                       print(goodsData?.id);
                       goodsService.delGoodsModel(goodsData!.id ?? "null");
                       print('Delete icon pressed');
-                      Navigator.pushReplacement(
+                      Navigator.pushAndRemoveUntil(
                         context,
-                        MaterialPageRoute(
-                            // builder: (context) => Home(SearchData: goodsList)),
-                            builder: (context) => App()),
+                        MaterialPageRoute(builder: (context) => App()),
+                        (route) => false,
                       );
                     },
                     child: Icon(
@@ -318,7 +315,7 @@ class _DetailState extends State<Detail> {
                   ),
                 ),
                 Text(
-                  " 조회 ${goodsData!.chatCnt}",
+                  " 채팅수 ${goodsData!.chatCnt}",
                   style: const TextStyle(
                     fontSize: 12,
                     color: Colors.grey,
@@ -621,11 +618,10 @@ class _DetailState extends State<Detail> {
                       ),
                       const SizedBox(height: 7),
                       Expanded(
-                        child: 
-                          Text(
-                            goods.title,
-                            style: const TextStyle(fontSize: 14),
-                          ),
+                        child: Text(
+                          goods.title,
+                          style: const TextStyle(fontSize: 14),
+                        ),
                       ),
                       Text(
                         int.parse(goods!.price)! <= 0
