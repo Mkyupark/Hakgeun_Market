@@ -195,7 +195,10 @@ class GoodsService {
     return base64Decode(base64String);
   }
 
-  String imageToBase64(Uint8List image) {
-    return base64Encode(image);
+  String? imageToBase64(Uint8List? image) {
+    if (image != null) {
+      return base64Encode(image);
+    }
+    return null;
   }
 }

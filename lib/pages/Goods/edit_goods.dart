@@ -1,4 +1,4 @@
-import 'dart:math';
+
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -88,7 +88,7 @@ class _AddGoodsFormState extends State<EditGoodsForm> {
   final TextEditingController _priceController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
   final TextEditingController _categoryController = TextEditingController();
-  late String _location = widget.goods!.category ?? "금오공과대학교";
+  late String _location = widget.goods!.category;
   @override
   void dispose() {
     _itemNameController.dispose();
@@ -109,8 +109,6 @@ class _AddGoodsFormState extends State<EditGoodsForm> {
 
   void register() async {
     final goodsService = GoodsService();
-
-    String number = FirebaseFirestore.instance.collection('goods').doc().id;
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     final user = userProvider.user;
     final goods = Goods(

@@ -120,7 +120,7 @@ class _HomeState extends State<Home> {
                                 height: 1,
                               ),
                               Text(
-                                int.parse(goods.price)! <= 0
+                                int.parse(goods.price) <= 0
                                     ? '무료나눔'
                                     : NumberFormat('###,###,###.###원')
                                         .format(int.parse(goods.price)),

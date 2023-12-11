@@ -87,11 +87,11 @@ class _AddGoodsFormState extends State<AddGoodsForm> {
     String number = Random().nextInt(100000).toString();
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     final user = userProvider.user;
-    String imageBase64 =
-        goodsService.imageToBase64(await _image!.readAsBytes());
+    String? imageBase64 =
+        goodsService.imageToBase64(await _image?.readAsBytes());
     final goods = Goods(
         id: number,
-        photoList: [imageBase64],
+        photoList: imageBase64 != null ? [imageBase64] : [],
         saler: user!.nickName,
         buyer: null,
         title: _itemNameController.text,
@@ -251,7 +251,7 @@ class _AddGoodsFormState extends State<AddGoodsForm> {
             ElevatedButton(
               onPressed: () {
                 register();
-              },
+            },
               style: ElevatedButton.styleFrom(
                 primary: const Color(0xFF2DB400),
                 minimumSize: const Size(double.infinity, 40.0),
