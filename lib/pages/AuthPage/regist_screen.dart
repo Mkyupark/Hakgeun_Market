@@ -30,7 +30,6 @@ class _RegistScreenState extends State<RegistScreen> {
           phoneNum: widget.phoneNumber,
           nickName: _nicknameController.text,
           schoolName: selectedSchool!,
-          mannerTemperature: 36.5,
           likeList: [],
         );
 

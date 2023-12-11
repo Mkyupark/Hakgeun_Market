@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:hakgeun_market/models/user.dart';
 import 'package:hakgeun_market/pages/AuthPage/regist_screen.dart';
 import 'package:hakgeun_market/pages/app.dart';
-import 'package:hakgeun_market/provider/navigation_provider.dart';
 import 'package:hakgeun_market/provider/user_provider.dart';
 import 'package:hakgeun_market/service/AuthService.dart';
 import 'package:hakgeun_market/service/userService.dart';

@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:hakgeun_market/componenets/manner_grade_widget.dart';
 import 'package:hakgeun_market/models/goods.dart';
 import 'package:hakgeun_market/models/user.dart';
 import 'package:hakgeun_market/pages/Goods/edit_goods.dart';
@@ -172,9 +171,7 @@ class _DetailState extends State<Detail> {
         ));
   }
 
-  // 매너 온도 등을 표시하는 위젯 생성 함수
-
-  // 판매자 정보와 매너 온도를 표시하는 위젯 생성 함수
+  // 판매자 정보를 표시하는 위젯 생성 함수
   Widget _sellerSimpleInfo() {
     return Padding(
       padding: const EdgeInsets.all(15.0),
@@ -204,7 +201,6 @@ class _DetailState extends State<Detail> {
               ),
             ],
           ),
-          Expanded(child: MannerGrade(mannergrade: 2.5)),
         ],
       ),
     );
@@ -451,7 +447,7 @@ class _DetailState extends State<Detail> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                int.parse(goodsData!.price)! <= 0
+                int.parse(goodsData!.price) <= 0
                     ? '무료나눔'
                     : NumberFormat('###,###,###.###원')
                         .format(int.parse(goodsData!.price)),
@@ -576,8 +572,8 @@ class _DetailState extends State<Detail> {
             (BuildContext context, int index) {
               Goods goods = filteredGoods[index];
               // goodsDataList에서 각 아이템 가져오기
-              if (filteredGoods == null || index >= filteredGoods.length) {
-                // goodsDataList가 null이거나 인덱스가 범위를 벗어날 경우 에러 방지
+              if (index >= filteredGoods.length) {
+                // 인덱스가 범위를 벗어날 경우 에러 방지
                 return Container();
               }
               //if( firebase에서 갖고온 goods.category  == goods.category){
@@ -624,10 +620,10 @@ class _DetailState extends State<Detail> {
                         ),
                       ),
                       Text(
-                        int.parse(goods!.price)! <= 0
+                        int.parse(goods.price) <= 0
                             ? '무료나눔'
                             : NumberFormat('###,###,###.###원')
-                                .format(int.parse(goods!.price)),
+                                .format(int.parse(goods.price)),
                         style: const TextStyle(
                             fontSize: 14, fontWeight: FontWeight.bold),
                       ),

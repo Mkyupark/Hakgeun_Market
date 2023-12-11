@@ -97,7 +97,7 @@ Widget build(BuildContext context) {
             child: Container(
               margin: const EdgeInsets.symmetric(horizontal: 8.0),
               child: ElevatedButton(
-                onPressed: isButtonClicked || buyer!.isNotEmpty
+                onPressed: isButtonClicked || buyer.isNotEmpty
                     ? null // Disable the button if it's already clicked or buyer is not empty
                     : () async {
                         String saler = documentSnapshot['saler'];

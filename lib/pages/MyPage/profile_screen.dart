@@ -2,11 +2,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:hakgeun_market/models/goods.dart';
-import 'package:hakgeun_market/models/user.dart';
 import 'package:hakgeun_market/pages/AuthPage/login_screen.dart';
 import 'package:hakgeun_market/pages/AuthPage/regist_screen.dart';
 import 'package:hakgeun_market/pages/Goods/home.dart';
-import 'package:hakgeun_market/provider/navigation_provider.dart';
 import 'package:hakgeun_market/provider/user_provider.dart';
 import 'package:hakgeun_market/service/goodsService.dart';
 import 'package:hakgeun_market/service/userService.dart';
@@ -23,15 +21,12 @@ class ProfilePage extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context);
-    final navProvider = Provider.of<NavigationProvider>(context);
     final user = userProvider.user;
-    List<Goods>? searchData;
     final GoodsService goodsService = GoodsService();
     if (user != null) {
       return Scaffold(
         body: ListView(
           children: <Widget>[
-            const SizedBox(height: 20),
             ListTile(
               leading: const Icon(Icons.account_circle, size: 50),
               title: Text(user.nickName),
@@ -42,8 +37,6 @@ class ProfilePage extends State<ProfileScreen> {
                 ],
               ),
             ),
-            const Divider(),
-            _buildMannerTemperature(context, user.mannerTemperature),
             const Divider(),
             _buildButton(context, Icons.list, '판매목록', Colors.green, () async {
               // Filter goods for Sales List
@@ -203,77 +196,6 @@ class ProfilePage extends State<ProfileScreen> {
       leading: Icon(icon, size: 30, color: color),
       title: Text(label),
       onTap: onTap,
-    );
-  }
-
-  Widget _buildMannerTemperature(BuildContext context, double temperature) {
-    Color color;
-    String emoji;
-
-    if (temperature < 35) {
-      color = Colors.blue;
-      emoji = '😊'; // Emoji for lower temperatures
-    } else if (temperature < 37) {
-      color = Colors.green;
-      emoji = '😐'; // Emoji for moderate temperatures
-    } else {
-      color = Colors.red;
-      emoji = '😷'; // Emoji for higher temperatures
-    }
-
-    return ListTile(
-      title: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              const Text("매너온도"),
-              const SizedBox(
-                  width:
-                      8.0), // Adjust the spacing between title and temperature
-              Text('${temperature.toStringAsFixed(1)}°C'),
-              const SizedBox(
-                  width:
-                      8.0), // Adjust the spacing between temperature and emoji
-              Text(emoji),
-            ],
-          ),
-          GestureDetector(
-            onTap: () {
-              _showMannerTemperatureInfo(context);
-            },
-            child: const Icon(Icons.info_outline,
-                color: Colors.blue), // Adjust the color as needed
-          ),
-        ],
-      ),
-      subtitle: ClipRRect(
-        borderRadius: BorderRadius.circular(10),
-        child: LinearProgressIndicator(
-          value: temperature / 100,
-          valueColor: AlwaysStoppedAnimation<Color>(color),
-          backgroundColor: Colors.grey[300],
-        ),
-      ),
-    );
-  }
-
-  void _showMannerTemperatureInfo(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('매너온도란?'),
-          content: const Text(
-              '학근점수는 사용자의 활동에 기반한 평판 점수입니다.\n긍정적인 활동으로 학점이 상승하며, 부정적인 행동으로 하락합니다.'),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('닫기'),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-          ],
-        );
-      },
     );
   }
 
